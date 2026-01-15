@@ -21,21 +21,21 @@ import javax.swing.plaf.basic.BasicArrowButton;
  * SplitButton class that provides a drop down menu when the right side arrow is
  * clicked. Written by Edward Scholl (edscholl@atwistedweb.com)- use as you
  * wish, but a acknowlegement would be appreciated if you use this...
- * 
+ *
  * @author Edward Scholl
  */
 public class MultiActionButton extends JToolBar implements ActionListener
 {
     private static final long serialVersionUID = -728093104564453315L;
-    
+
     private static final String uiClassID = "ToolBarUI";
-    
-    private JToggleButton mainButton; 
+
+    private JToggleButton mainButton;
     private JButton dropDownButton;
     private JPopupMenu dropDownMenu;
-    
+
     private int actionId = 0;
-    
+
     /**
      * Default Constructor that creates a blank button with a down facing arrow.
      */
@@ -43,12 +43,12 @@ public class MultiActionButton extends JToolBar implements ActionListener
     {
         this("");
         setFloatable(false);
-        
+
     }
 
     /**
      * Creates a button with the specified text and a down facing arrow.
-     * 
+     *
      * @param text
      *            String
      */
@@ -61,7 +61,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
     /**
      * Creates a button with the specified text and a arrow in the specified
      * direction.
-     * 
+     *
      * @param text
      *            String
      * @param orientation
@@ -76,14 +76,14 @@ public class MultiActionButton extends JToolBar implements ActionListener
     /**
      * Passes in the button to use in the left hand side, with the specified
      * orientation for the arrow on the right hand side.
-     * 
+     *
      * @param mainButton
      *            JButton
      * @param orientation
      *            int
      */
     public MultiActionButton(JToggleButton mainButton, int orientation)
-    {        
+    {
         this.mainButton = mainButton;
         setFloatable(false);
 
@@ -102,7 +102,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
         Dimension mainButtonMinSize = mainButton.getMinimumSize();
         Dimension dropDownButtonMinSize = dropDownButton.getMinimumSize();
         this.setMaximumSize(new Dimension(mainButtonMinSize.width + dropDownButtonMinSize.width, mainButtonMinSize.height));
-        
+
         Dimension mainButtonMaxSize = mainButton.getMaximumSize();
         Dimension dropDownButtonMaxSize = dropDownButton.getMaximumSize();
         this.setMinimumSize(new Dimension(mainButtonMaxSize.width + dropDownButtonMaxSize.width, mainButtonMaxSize.height));
@@ -112,7 +112,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
 
         this.add(mainButton, BorderLayout.CENTER);
         this.add(dropDownButton, BorderLayout.EAST);
-        
+
     }
 
     public void setAction(int actionId, ImageIcon imageIcon, String toolTip)
@@ -122,19 +122,19 @@ public class MultiActionButton extends JToolBar implements ActionListener
         mainButton.setToolTipText(toolTip);
         mainButton.setSelected(true);
     }
-    
+
     public int getActionId()
     {
         return actionId;
     }
-    
+
     /*public String getUIClassID() {
         return uiClassID;
     }*/
-    
+
     /**
      * Sets the popup menu to show when the arrow is clicked.
-     * 
+     *
      * @param menu
      *            JPopupMenu
      */
@@ -145,7 +145,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
 
     /**
      * returns the main (left hand side) button.
-     * 
+     *
      * @return JButton
      */
     public JToggleButton getMainButton()
@@ -155,7 +155,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
 
     /**
      * gets the drop down button (with the arrow)
-     * 
+     *
      * @return JButton
      */
     public JButton getDropDownButton()
@@ -165,7 +165,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
 
     /**
      * gets the drop down menu
-     * 
+     *
      * @return JPopupMenu
      */
     public JPopupMenu getMenu()
@@ -175,7 +175,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
 
     /**
      * action listener for the arrow button- shows / hides the popup menu.
-     * 
+     *
      * @param e
      *            ActionEvent
      */
@@ -185,7 +185,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
         {
             return;
         }
-        
+
         if (!dropDownMenu.isVisible())
         {
             Point p = this.getLocationOnScreen();
@@ -202,7 +202,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
      * adds a action listener to this button (actually to the left hand side
      * button, and any left over surrounding space. the arrow button will not be
      * affected.
-     * 
+     *
      * @param al
      *            ActionListener
      */
@@ -211,7 +211,7 @@ public class MultiActionButton extends JToolBar implements ActionListener
         this.mainButton.addActionListener(al);
         //super.addActionListener(al);
     }
-    
-    
-    
+
+
+
 }

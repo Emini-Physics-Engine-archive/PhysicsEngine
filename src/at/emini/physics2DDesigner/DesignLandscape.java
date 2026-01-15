@@ -17,24 +17,24 @@ import at.emini.physics2D.util.FXUtil;
 import at.emini.physics2D.util.FXVector;
 import at.emini.physics2D.util.PhysicsFileReader;
 
-public class DesignLandscape extends Landscape implements DesignSelectionObject 
+public class DesignLandscape extends Landscape implements DesignSelectionObject
 {
     private final int interactiveDistance = 4;
 
     private Vector selectedPoints = new Vector();
     private FXVector lastPosition = new FXVector();
     private boolean actionperformed = false;
-    
+
     private static int wallDepth = 5;
-    
+
     private static BufferedImage switchIcon = null;
-    
+
     private static int width = 10;
     private static int height = 10;
     private static int widthFX = width * FXUtil.ONE_FX;
     private static int heightFX = height * FXUtil.ONE_FX;
-    
-    
+
+
     public DesignLandscape()
     {
         super();
@@ -48,16 +48,16 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
 
     public Landscape copy()
     {
-        DesignLandscape copy = new DesignLandscape(this);        
+        DesignLandscape copy = new DesignLandscape(this);
 
         return copy;
     }
-    
+
     public Color getColor()
     {
         return Color.gray;
     }
-    
+
     public void setColor(Color c)
     {
     }
@@ -66,8 +66,8 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
     {
         if ( switchIcon == null)
         {
-            try 
-            {            
+            try
+            {
                 switchIcon = ImageIO.read( getClass().getResourceAsStream("/res/icon_rotate_sm.png") );
             }
             catch(IOException e)
@@ -76,7 +76,7 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             }
         }
     }
-    
+
     protected void consolidateVectors()
     {
         for( int i = 0; i < mSegmentCount; i++)
@@ -100,20 +100,20 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
         sortArrays();
     }
 
-    public void drawObject(GraphicsWrapper g, Color c, Color c2, boolean drawFull) 
+    public void drawObject(GraphicsWrapper g, Color c, Color c2, boolean drawFull)
     {
         g.setColor(c);
-        
+
         float zoomScale = (float) g.getZoomScale();
-        
+
         BasicStroke stroke = new BasicStroke((int) (1.0f / zoomScale) );
         g.setStroke(stroke);
-        
+
         for( int i = 0; i < mSegmentCount; i++)
         {
             //create wall effect
             if (mFaces[i] != Landscape.FACE_NONE)
-            {			  
+            {
                 g.setPaintMode();
                 //g.setXORMode(Color.white);
 
@@ -127,45 +127,45 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
                 {
                     dir.mult(-1);
                 }
-                
+
                 g.setPaint( new GradientPaint(mStartpoints[i].xFX - dir.xFX, mStartpoints[i].yFX - dir.yFX, Color.black,
                         mStartpoints[i].xFX + dir.xFX, mStartpoints[i].yFX + dir.yFX, Color.white) );
-                FXVector[] positions = new FXVector[4]; 
-                
+                FXVector[] positions = new FXVector[4];
+
                 positions[0] = mStartpoints[i];
                 positions[1] = mEndpoints[i];
                 positions[2] = new FXVector(mEndpoints[i]);
                 positions[2].add(dir);
                 positions[3] = new FXVector(mStartpoints[i]);
                 positions[3].add(dir);
-                Polygon p = GraphicsWrapper.createPolygon(positions, 0, 4);                 
+                Polygon p = GraphicsWrapper.createPolygon(positions, 0, 4);
 
                 g.fillPolygon(p);
                 g.setPaint(c);
-            } 
-                
+            }
+
             g.setXORMode(Color.white);
-            
-            g.drawLine(mStartpoints[i].xFX, mStartpoints[i].yFX, 
+
+            g.drawLine(mStartpoints[i].xFX, mStartpoints[i].yFX,
                     mEndpoints[i].xFX, mEndpoints[i].yFX);
         }
         g.setStroke(new BasicStroke());
         g.setPaintMode();
-        
+
     }
 
     public void drawInteractives(GraphicsWrapper g, Color color, Color c2)
     {
         double zoomScale = g.getZoomScale();
-        
+
         g.setColor(Color.black);
         for( int i = 0; i < mSegmentCount; i++)
         {
-            g.drawArc((int) (mStartpoints[i].xFX - interactiveDistance / zoomScale), (int) (mStartpoints[i].yFX - interactiveDistance / zoomScale), 
-                    (int) (interactiveDistance * 2 / zoomScale), 
+            g.drawArc((int) (mStartpoints[i].xFX - interactiveDistance / zoomScale), (int) (mStartpoints[i].yFX - interactiveDistance / zoomScale),
+                    (int) (interactiveDistance * 2 / zoomScale),
                     (int) (interactiveDistance * 2 / zoomScale), 0, 360);
-            g.drawArc((int) (mEndpoints[i].xFX - interactiveDistance / zoomScale), (int) (mEndpoints[i].yFX - interactiveDistance / zoomScale), 
-                    (int) (interactiveDistance * 2 / zoomScale), 
+            g.drawArc((int) (mEndpoints[i].xFX - interactiveDistance / zoomScale), (int) (mEndpoints[i].yFX - interactiveDistance / zoomScale),
+                    (int) (interactiveDistance * 2 / zoomScale),
                     (int) (interactiveDistance * 2 / zoomScale), 0, 360);
 
             //draw icon
@@ -175,36 +175,36 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
 
     }
 
-    public int getAction(GraphicsWrapper g, FXVector mousepos) 
+    public int getAction(GraphicsWrapper g, FXVector mousepos)
     {
         FXVector ul = new FXVector();
         FXVector br = new FXVector();
-        
+
         double zoomScale = g.getZoomScale();
-        
+
         //check all positions
         for( int i = 0; i < mSegmentCount; i++)
-        {   
+        {
             ul.assignFX((mStartpoints[i].xFX + mEndpoints[i].xFX) / 2, (mStartpoints[i].yFX + mEndpoints[i].yFX) / 2);
             br.assignFX(ul.xFX + widthFX, ul.yFX + heightFX);
             if (mousepos.isInRect(ul, br))
             {
                 return Designer.ACTION_FACE_SWITCH;
             }
-            
+
             if (mStartpoints[i].distFX(mousepos) < interactiveDistance / zoomScale)
             {
-                return 	Designer.ACTION_MOVE;
+                return  Designer.ACTION_MOVE;
             }
             if (mEndpoints[i].distFX(mousepos) < interactiveDistance / zoomScale)
             {
-                return 	Designer.ACTION_MOVE;
+                return  Designer.ACTION_MOVE;
             }
         }
         return Designer.ACTION_NONE;
     }
-    
-    public int getAction(GraphicsWrapper g, FXVector p1, FXVector p2) 
+
+    public int getAction(GraphicsWrapper g, FXVector p1, FXVector p2)
     {
         //check all positions
         for( int i = 0; i < mSegmentCount; i++)
@@ -217,7 +217,7 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             {
                 return  Designer.ACTION_MOVE;
             }
-            
+
         }
         return -1;
     }
@@ -226,10 +226,10 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
     {
         FXVector ul = new FXVector();
         FXVector br = new FXVector();
-        
+
         //check all positions
         for( int i = 0; i < mSegmentCount; i++)
-        {   
+        {
             ul.assignFX((mStartpoints[i].xFX + mEndpoints[i].xFX) / 2, (mStartpoints[i].yFX + mEndpoints[i].yFX) / 2);
             br.assignFX(ul.xFX + widthFX, ul.yFX + heightFX);
             if (mousepos.isInRect(ul, br))
@@ -239,12 +239,12 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             }
         }
     }
-    
-    
-    public FXVector makeMove(FXVector newPos) 
+
+
+    public FXVector makeMove(FXVector newPos)
     {
         FXVector diff = new FXVector(newPos);
-        diff.subtract(lastPosition);            
+        diff.subtract(lastPosition);
         for( int i = 0; i < selectedPoints.size(); i++)
         {
             ((FXVector) selectedPoints.elementAt(i)).add(diff);
@@ -256,11 +256,11 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
         return diff;
     }
 
-    public int setAction(GraphicsWrapper g, FXVector mousepos, FXVector gridPos) 
+    public int setAction(GraphicsWrapper g, FXVector mousepos, FXVector gridPos)
     {
         unsetAction();
         double zoomScale = g.getZoomScale();
-        
+
         //check all positions
         for( int i = 0; i < mSegmentCount; i++)
         {
@@ -270,11 +270,11 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             br.assignFX(ul.xFX + widthFX, ul.yFX + heightFX);
             if (mousepos.isInRect(ul, br))
             {
-                faces[i] = (short) ((faces[i] + 1) % 3); 
+                faces[i] = (short) ((faces[i] + 1) % 3);
                 System.out.println(faces[i]);
                 return Designer.ACTION_NONE;
             }*/
-            
+
             if (mStartpoints[i].distFX(mousepos) < interactiveDistance / zoomScale)
             {
                 selectedPoints.addElement(mStartpoints[i]);
@@ -293,7 +293,7 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
         return selectedPoints.size() > 0 ? Designer.ACTION_MOVE : Designer.ACTION_NONE;
     }
 
-    
+
     public void setCoAction(int action, GraphicsWrapper g, FXVector startPos, FXVector gridPos)
     {
         if (action != Designer.ACTION_MOVE || hasAction())
@@ -301,7 +301,7 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             return;
         }
     }
-    
+
     public void selectLastElement(FXVector mousepos, FXVector gridPos, FXVector endPoint)
     {
         unsetAction();
@@ -310,7 +310,7 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
         lastPosition = gridPos;
     }
 
-    public boolean unsetAction() 
+    public boolean unsetAction()
     {
         boolean returnval = hasAction() && actionperformed;
         selectedPoints.clear();
@@ -318,14 +318,14 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
         return returnval;
     }
 
-    public boolean hasAction() 
+    public boolean hasAction()
     {
         return selectedPoints.size() > 0;
     }
 
-    public void removeAt(GraphicsWrapper g, FXVector mousepos) 
+    public void removeAt(GraphicsWrapper g, FXVector mousepos)
     {
-        double zoomScale = g.getZoomScale();        
+        double zoomScale = g.getZoomScale();
         for( int i = 0; i < mSegmentCount; i++)
         {
             if (   mStartpoints[i].distFX(mousepos) < interactiveDistance / zoomScale
@@ -345,14 +345,14 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             }
         }
 
-        consolidateVectors();		
+        consolidateVectors();
     }
 
 
     public void saveToFile(MyFileWriter fileWriter, Vector shapes)
     {
-        try 
-        {   
+        try
+        {
             fileWriter.writeInt( mSegmentCount );
 
             for( int i = 0; i < mSegmentCount; i++)
@@ -364,14 +364,14 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             new DesignShapeStd(getShape()).saveToFile(fileWriter, shapes);
 
         }
-        catch( IOException e) 
+        catch( IOException e)
         {
             System.out.print("Error while writing file!\n");
         }
 
     }
 
-    public static DesignLandscape loadFromFile(File file, Vector shapes) 
+    public static DesignLandscape loadFromFile(File file, Vector shapes)
     {
         PhysicsFileReader reader = new PhysicsFileReader(file);
 
@@ -384,13 +384,13 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
     {
         return new DesignLandscape(Landscape.loadLandscape(reader));
     }
-    
+
     private Vector listeners = new Vector();
     public void addListener(DesignObjectChangeListener listener)
     {
         listeners.add(listener);
     }
-    
+
     public void removeListener(DesignObjectChangeListener listener)
     {
         listeners.remove(listener);
@@ -403,7 +403,7 @@ public class DesignLandscape extends Landscape implements DesignSelectionObject
             ((DesignObjectChangeListener) listeners.elementAt(i)).designObjectChanged(this);
         }
     }
-    
+
     public String toString()
     {
         return "Landscape";

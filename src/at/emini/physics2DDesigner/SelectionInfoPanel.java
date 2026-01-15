@@ -19,32 +19,32 @@ public abstract class SelectionInfoPanel extends JPanel implements FocusListener
     protected JPanel header;
     protected JPanel details;
     protected JLabel identifier;
-    
+
     private boolean isSelected;
-    
+
     private Color mainColor;
     private Color selectedColor;
-    
+
     protected SelectionPanel selectionPanel = null;
-    
+
     public SelectionInfoPanel(SelectionPanel selectionPanel, Color c1, Color c2 )
     {
-        this.selectionPanel = selectionPanel; 
+        this.selectionPanel = selectionPanel;
         setLayout(new BorderLayout());
-     
+
         mainColor = c1;
         selectedColor = c2;
-     
+
         initComponents();
-        
+
         addFocusListener(this);
         identifier.addMouseListener(this);
     }
-    
+
     private void initComponents()
-    {        
-        final SelectionInfoPanel thisPanel = this; 
-        header = new JPanel(new BorderLayout());        
+    {
+        final SelectionInfoPanel thisPanel = this;
+        header = new JPanel(new BorderLayout());
         identifier = new JLabel("");
         identifier.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e)
@@ -53,47 +53,47 @@ public abstract class SelectionInfoPanel extends JPanel implements FocusListener
                 selectionPanel.infoPanelSelected(thisPanel);
             }
         });
-        
-                
+
+
         header.add(identifier, BorderLayout.CENTER);
         add(header, BorderLayout.NORTH);
-           
+
         details = new JPanel();
-        
+
         add("Center", details);
         details.setVisible(false);
-        
+
         setHeaderColor(mainColor);
     }
-    
+
     public abstract void resetLabel();
-    
+
     public Dimension getMaximumSize()
     {
         int height = (isSelected ? details.getPreferredSize().height : 0)
             + header.getPreferredSize().height;
         return new Dimension(400,height);
     }
-    
-      
+
+
     public void unselect()
     {
         isSelected = false;
         updateVisibility();
     }
-    
+
     public void select()
     {
         isSelected = true;
         updateVisibility();
     }
-    
+
     private void updateVisibility()
     {
         details.setVisible(isSelected);
     }
 
-    public void focusGained(FocusEvent e) 
+    public void focusGained(FocusEvent e)
     {
         select();
         if (selectionPanel != null)
@@ -103,7 +103,7 @@ public abstract class SelectionInfoPanel extends JPanel implements FocusListener
     }
 
     public void focusLost(FocusEvent e) {}
-   
+
     public void mouseClicked(MouseEvent e){}
     public void mousePressed(MouseEvent e) {}
     public void mouseReleased(MouseEvent e){}
@@ -114,7 +114,7 @@ public abstract class SelectionInfoPanel extends JPanel implements FocusListener
 
     public void mouseExited(MouseEvent e)
     {
-        setHeaderColor(mainColor);        
+        setHeaderColor(mainColor);
     }
 
     private void setHeaderColor(Color c)

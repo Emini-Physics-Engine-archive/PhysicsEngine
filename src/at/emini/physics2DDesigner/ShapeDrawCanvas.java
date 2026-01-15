@@ -12,12 +12,12 @@ public class ShapeDrawCanvas extends JPanel {
 
     protected DesignShapeStd shape;
     private boolean isSelected = false;
-    
+
     public ShapeDrawCanvas(DesignShapeStd shape)
     {
         this.shape = shape;
     }
-        
+
     public void paint(GraphicsWrapper g)
     {
         g.setColor(isSelected ? Color.orange : Color.white);
@@ -27,12 +27,12 @@ public class ShapeDrawCanvas extends JPanel {
         {
             double scale = Math.min(getWidth(), getHeight()) / ((double)shape.getBoundingRadiusFX() * 2);
             AffineTransform scaleTransform = AffineTransform.getScaleInstance(scale, scale);
-            
+
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            
+
             g.translate(getWidth()/2, getHeight()/2);
             g.transform(scaleTransform);
-                        
+
             shape.draw(g, false);
         }
     }

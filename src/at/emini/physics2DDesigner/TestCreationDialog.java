@@ -22,28 +22,28 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 
-public class TestCreationDialog extends JDialog 
+public class TestCreationDialog extends JDialog
 {
     private static final long serialVersionUID = 5685062958123365462L;
-    
+
     public static String resPath = "/res/tests/";
     public static String testPath = "/src/physics2DSimulationTests/";
 
-    
+
     private DesignWorld world;
-    
+
     private JButton cancelButton;
     private JButton createButton;
     private JButton addCriteriumButton;
-    
+
     private JTextField testName;
     private JTextArea testDescription;
     private JSpinner simulationTime;
-    
+
     private JPanel criteria;
-    
+
     private String[] eventIds;
-    
+
     public TestCreationDialog(DesignWorld world)
     {
         this.world = world;
@@ -52,23 +52,23 @@ public class TestCreationDialog extends JDialog
         {
             eventIds[i] = String.valueOf( world.getEvent(i).getIdentifier() );
         }
-        
+
         setTitle("Create Physics Simulation Test");
-        
+
         addWindowListener (new java.awt.event.WindowAdapter () {
             public void windowClosing (java.awt.event.WindowEvent evt) {
                 dispose();
             }
         });
-        
+
         initComponents();
     }
-    
+
     private void initComponents()
     {
         //Buttons
-        JPanel hold = new JPanel(new FlowLayout(FlowLayout.TRAILING, 5, 5) );        
-        
+        JPanel hold = new JPanel(new FlowLayout(FlowLayout.TRAILING, 5, 5) );
+
         addCriteriumButton = new JButton("Add Criterium");
         addCriteriumButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -76,8 +76,8 @@ public class TestCreationDialog extends JDialog
             }
         });
         hold.add(addCriteriumButton);
-        hold.add(new JLabel());        
-        
+        hold.add(new JLabel());
+
         createButton = new JButton("Create");
         createButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -85,7 +85,7 @@ public class TestCreationDialog extends JDialog
             }
         });
         hold.add(createButton);
-        
+
         cancelButton = new JButton("Cancel");
         cancelButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e) {
@@ -93,46 +93,46 @@ public class TestCreationDialog extends JDialog
             }
         });
         hold.add(cancelButton);
-                
+
         add(hold, BorderLayout.SOUTH);
-        
-        
+
+
         //Test name, description and sim time
         JPanel box = new JPanel(new BorderLayout(5, 5));
         JPanel box2 = new JPanel(new GridLayout( 2, 2, 5, 5));
-        
+
         testName = new JTextField("Simulation Test");
         box2.add(new JLabel("Test Name:"));
         box2.add(testName);
-        
+
         simulationTime = new JSpinner(new SpinnerNumberModel(20, 0, 10000, 20));
         box2.add(new JLabel("Simulation Time:"));
         box2.add(simulationTime);
-        
+
         JPanel box3 = new JPanel(new GridLayout( 1, 2, 5, 5));
         testDescription = new JTextArea("Description");
         testDescription.setRows(5);
         box3.add(new JLabel("Test Description:"));
         box3.add(new JScrollPane(testDescription));
-        
+
         box.add(box2, BorderLayout.NORTH);
         box.add(box3, BorderLayout.SOUTH);
-        
+
         add(box, BorderLayout.NORTH);
-        
+
         //Test Criteria
         criteria = new JPanel();
         criteria.setLayout(new BoxLayout(criteria, BoxLayout.Y_AXIS));
-        
+
         JScrollPane scrollPane = new JScrollPane(criteria);
-        
+
         add(scrollPane, BorderLayout.CENTER);
-        
+
         addCriterium();
-        
+
         pack();
     }
-    
+
     private void cancelPressed()
     {
         setVisible(false);
@@ -146,39 +146,39 @@ public class TestCreationDialog extends JDialog
         testName = testName.replaceAll(" ", "");    //TODO: improved regexp for classname
         String filename = testName + ".world";
         String simTime = simulationTime.getModel().getValue().toString();
-        
+
         String code = createCode(testName, filename, simTime);
-        
+
         //save world and test (call save dialog)
         JFileChooser chooser = new JFileChooser("Choose Physics Engine Main directory");
         chooser.setCurrentDirectory( Designer.testStdDir );
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
         int returnVal = chooser.showSaveDialog( this );
-        if( returnVal == JFileChooser.APPROVE_OPTION ) 
-        {          
+        if( returnVal == JFileChooser.APPROVE_OPTION )
+        {
             File baseDirectory = chooser.getSelectedFile();
             //save world in res
             String worldFileName = baseDirectory.getAbsolutePath() + resPath +  filename;
             File worldFile = new File(worldFileName);
             world.saveToFile(worldFile);
-            
+
             String testFileName =  baseDirectory.getAbsolutePath() + testPath +  testName + ".java";
             File testFile = new File(testFileName);
             //save test file
             saveTestFile(testFile, code);
-        }  
-        
+        }
+
         setVisible(false);
         dispose();
     }
-    
+
     private void saveTestFile(File file, String text)
     {
         try {
            FileWriter outFile = new FileWriter(file);
            PrintWriter out = new PrintWriter(outFile);
-           
+
            // Write text to file
            out.print(text);
            out.close();
@@ -186,13 +186,13 @@ public class TestCreationDialog extends JDialog
            e.printStackTrace();
        }
     }
-    
+
     private void addCriterium()
     {
         criteria.add(new TestCriteriumPanel(eventIds));
         validate();
     }
-    
+
     public static final String codeTemplate01  = "package physics2DSimulationTests;\n";
     public static final String codeTemplate02  = "/**\n";
     public static final String codeTemplate03  = "*\n";
@@ -220,12 +220,12 @@ public class TestCreationDialog extends JDialog
     public static final String codeTemplate19  = "        test.startVisualTest();\n";
     public static final String codeTemplate20  = "    }\n";
     public static final String codeTemplate21  = "}\n";
-        
-        
+
+
     private String createCode(String testName, String filename, String simTime)
     {
         String code = "";
-        
+
         code += codeTemplate01;
         code += codeTemplate02;
         code += codeTemplate03;
@@ -245,9 +245,9 @@ public class TestCreationDialog extends JDialog
         {
             if (criteria.getComponent(i) instanceof TestCriteriumPanel)
             {
-                code += ((TestCriteriumPanel) criteria.getComponent(i)).getCodeLine(); 
+                code += ((TestCriteriumPanel) criteria.getComponent(i)).getCodeLine();
             }
-        }        
+        }
         code += codeTemplate14;
         code += codeTemplate15;
         code += codeTemplate16;
@@ -256,7 +256,7 @@ public class TestCreationDialog extends JDialog
         code += codeTemplate19;
         code += codeTemplate20;
         code += codeTemplate21;
-                
+
         return code;
-    }    
+    }
 }

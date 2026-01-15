@@ -20,37 +20,37 @@ import at.emini.physics2D.MultiShape;
 import at.emini.physics2D.Shape;
 
 
-public class ShapeSelectionPanel extends SelectionPanel 
+public class ShapeSelectionPanel extends SelectionPanel
 {
     private static final long serialVersionUID = -8536252621737921090L;
-    
+
     private JButton addShape;
     private JButton addMultiShape;
     private JButton removeShape;
     private JButton saveShape;
     private JButton loadShape;
-    
+
     private Vector shapeSelectionListener = new Vector();
-    
+
     private JPopupMenu newShapeMenu;
-    
+
     public ShapeSelectionPanel(DesignWorld world, WorldDesigner designer)
     {
         super(world, designer);
-        
+
         initActions();
         initComponents();
     }
-    
+
     public void setWorld(DesignWorld world)
     {
         super.setWorld(world);
-        
-        selectedInfoPanel = null;        
 
-        setShapes(world);        
+        selectedInfoPanel = null;
+
+        setShapes(world);
     }
-    
+
     private void initActions()
     {
         try
@@ -58,48 +58,48 @@ public class ShapeSelectionPanel extends SelectionPanel
             Image image = ImageIO.read( getClass().getResourceAsStream("/res/button_save_shape.png") );
             saveShape = new JButton( new ImageIcon(image));
             saveShape.addActionListener(new ActionListener(){
-            
+
                 public void actionPerformed(ActionEvent e) {
-                    saveShape();                
+                    saveShape();
                 }
             });
             saveShape.setToolTipText("Save Shapes");
-            
+
             image = ImageIO.read( getClass().getResourceAsStream("/res/button_new_shape.png") );
             addShape = new JButton(new ImageIcon(image));
-            addShape.addActionListener(new ActionListener(){        
+            addShape.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent e) {
                     newShapeMenu.show(addShape, getX(), getY() + addShape.getHeight());
-                    //addShape( DesignShape.createDesignShape(30, 30) );                
+                    //addShape( DesignShape.createDesignShape(30, 30) );
                 }
             });
             addShape.setToolTipText("New Shape");
-           
+
             image = ImageIO.read( getClass().getResourceAsStream("/res/button_new_multi_shape.png") );
             addMultiShape = new JButton(new ImageIcon(image));
-            addMultiShape.addActionListener(new ActionListener(){        
+            addMultiShape.addActionListener(new ActionListener(){
                 public void actionPerformed(ActionEvent e) {
-                    newMultiShape();                
+                    newMultiShape();
                 }
             });
             addMultiShape.setToolTipText("New Combined Shape");
-                    
+
             image = ImageIO.read( getClass().getResourceAsStream("/res/button_load_shape.png") );
             loadShape = new JButton( new ImageIcon(image));
             loadShape.addActionListener(new ActionListener(){
-            
+
                 public void actionPerformed(ActionEvent e) {
-                    loadShape();                
+                    loadShape();
                 }
             });
             loadShape.setToolTipText("Load Shapes");
-        
+
             image = ImageIO.read( getClass().getResourceAsStream("/res/button_delete_shape.png") );
             removeShape = new JButton(new ImageIcon(image));
             removeShape.addActionListener(new ActionListener(){
-            
+
                 public void actionPerformed(ActionEvent e) {
-                    removeSelected();                
+                    removeSelected();
                 }
             });
             removeShape.setToolTipText("Delete Shape");
@@ -107,24 +107,24 @@ public class ShapeSelectionPanel extends SelectionPanel
         catch (IOException e)
         {
             e.printStackTrace();
-        }   
+        }
     }
-    
-    
+
+
     private void initComponents()
     {
-        
+
         toolBar.add(saveShape);
         toolBar.add(loadShape);
         toolBar.addSeparator();
-        
+
         toolBar.add(addShape);
         toolBar.add(addMultiShape);
         toolBar.add(removeShape);
-        
-        
+
+
         newShapeMenu = new JPopupMenu("Select Shape Prototype");
-        
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         int[] polygons = {3, 4, 5, 6, 8, 1};
         try
@@ -135,7 +135,7 @@ public class ShapeSelectionPanel extends SelectionPanel
                 Image image = ImageIO.read( getClass().getResourceAsStream("/res/button_poly_" + vertices + ".png") );
                 JMenuItem poly = new JMenuItem();
                 poly.setIcon(new ImageIcon(image));
-                poly.addActionListener(new ActionListener() {            
+                poly.addActionListener(new ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                        addShape(DesignShapeStd.createDesignPolygon(15,vertices));
                     }
@@ -147,35 +147,35 @@ public class ShapeSelectionPanel extends SelectionPanel
         {
             e.printStackTrace();
         }
-        
-    }    
-    
+
+    }
+
     public Dimension getPreferredSize()
     {
         return new Dimension(250,100);
     }
-    
+
     public void addShapeSelectionListener(ShapeSelectionListener listener)
     {
         shapeSelectionListener.add(listener);
     }
-        
+
     private void newMultiShape()
     {
         Vector shapes = new Vector();
         Vector availableShapes = world.getShapeSet().getShapes();
         for( int i = 0; i < availableShapes.size(); i++)
         {
-            if (! (availableShapes.get(i) instanceof MultiShape) ) 
+            if (! (availableShapes.get(i) instanceof MultiShape) )
             {
                 shapes.add(availableShapes.get(i));
                 break;
             }
         }
-        
+
         addShape( new DesignMultiShape(shapes) );
     }
-    
+
     private void addShape( DesignShape shape )
     {
         //register shape at world
@@ -183,20 +183,20 @@ public class ShapeSelectionPanel extends SelectionPanel
         {
             world.getShapeSet().registerShape( (Shape) shape );
         }
-        
+
         ShapeInfoPanel shapeInfo = new ShapeInfoPanel( shape, this );
         addPanel(shapeInfo);
         resetLabels();
-        
+
         checkMultiShapePanels();
-        
+
         validate();
         repaint();
     }
-    
-    
+
+
     public void infoPanelEdited(ShapeDesigner d) {}
-    
+
     private void removeSelected()
     {
         if (selectedInfoPanel != null)
@@ -207,25 +207,25 @@ public class ShapeSelectionPanel extends SelectionPanel
             removePanel(selectedInfoPanel);
             resetLabels();
         }
-        
+
         checkMultiShapePanels();
-        
+
         validate();
         repaint();
     }
-    
+
     private void checkMultiShapePanels()
     {
         for( int i = 0; i < selectionPanel.getComponentCount(); i++)
         {
-            DesignShape shape = ((ShapeInfoPanel) selectionPanel.getComponent(i)).getShape(); 
+            DesignShape shape = ((ShapeInfoPanel) selectionPanel.getComponent(i)).getShape();
             if ( shape instanceof MultiShape)
             {
                 ((ShapeInfoPanel) selectionPanel.getComponent(i)).checkShapes(world);
             }
         }
     }
-    
+
     private void saveShape()
     {
         if (selectedInfoPanel != null)
@@ -235,8 +235,8 @@ public class ShapeSelectionPanel extends SelectionPanel
             chooser.setFileFilter(new PhyFileFilter());
             chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
             int returnVal = chooser.showSaveDialog( this );
-            if( returnVal == JFileChooser.APPROVE_OPTION ) 
-            {          
+            if( returnVal == JFileChooser.APPROVE_OPTION )
+            {
                 File file = chooser.getSelectedFile();
                 String filename = file.getName();
                 if (! filename.contains("."))
@@ -247,37 +247,37 @@ public class ShapeSelectionPanel extends SelectionPanel
                 DesignWorld saveWorld = new DesignWorld();
                 saveWorld.setDesignShapeSet(world.getDesignShapeSet());
                 saveWorld.saveToFile(file);
-            }  
-            
+            }
+
         }
         repaint();
     }
-    
+
     private void loadShape()
-    {        
+    {
         JFileChooser chooser = new JFileChooser("Load Shapes");
         chooser.setCurrentDirectory( Designer.stdDir );
         chooser.setFileFilter(new PhyFileFilter());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         int returnVal = chooser.showOpenDialog( this );
-        if( returnVal == JFileChooser.APPROVE_OPTION ) 
-        {          
+        if( returnVal == JFileChooser.APPROVE_OPTION )
+        {
             File file = chooser.getSelectedFile();
             DesignWorld loadWorld = DesignWorld.loadFromFile(file);
             Vector shapes = loadWorld.getDesignShapeSet().getShapes();
             for( int i = 0; i < shapes.size(); i++)
             {
-                DesignShapeStd shape = (DesignShapeStd)shapes.elementAt(i);                
+                DesignShapeStd shape = (DesignShapeStd)shapes.elementAt(i);
                 addShape(new DesignShapeStd(shape));
             }
-            
+
         }
     }
-    
-    public void infoPanelSelected(SelectionInfoPanel infoPanel) 
+
+    public void infoPanelSelected(SelectionInfoPanel infoPanel)
     {
         super.infoPanelSelected(infoPanel);
-        
+
         for(int i = 0; i < shapeSelectionListener.size(); i++)
         {
             ShapeSelectionListener listener = (ShapeSelectionListener) shapeSelectionListener.get(i);
@@ -288,35 +288,35 @@ public class ShapeSelectionPanel extends SelectionPanel
         }
     }
 
-    private void setShapes(DesignWorld world) 
+    private void setShapes(DesignWorld world)
     {
         selectionPanel.removeAll();
         Vector shapes = world.getShapes();
-        
+
         for( int i = 0; i < shapes.size(); i++)
         {
             if (shapes.get(i) instanceof DesignShape)
             {
-                DesignShape s = (DesignShape) shapes.get(i);                
+                DesignShape s = (DesignShape) shapes.get(i);
                 addShape( s );
             }
         }
-        
+
         if (shapes.size() > 0)
         {
             infoPanelSelected((ShapeInfoPanel) selectionPanel.getComponent(0));
         }
     }
-    
+
     public DesignShape getSelectedShape()
     {
         return ((ShapeInfoPanel) selectedInfoPanel).getShape();
     }
-    
+
     private void resetLabels()
     {
         for( int i = 0; i < selectionPanel.getComponentCount(); i++)
-        {   
+        {
             ((ShapeInfoPanel) selectionPanel.getComponent(i)).resetLabel();
         }
     }

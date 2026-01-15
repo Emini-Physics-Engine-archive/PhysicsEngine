@@ -14,7 +14,7 @@ public class CirclePolyCollisionTest extends SimulationTest {
         addTestCriterium(0, TestEventListener.MUST_OCCUR, 0, 40);
         performSimTest();
     }
-    
+
     public static void main(String[] args)
     {
         CirclePolyCollisionTest test = new CirclePolyCollisionTest("");

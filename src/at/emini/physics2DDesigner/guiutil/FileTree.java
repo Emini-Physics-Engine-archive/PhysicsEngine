@@ -10,10 +10,10 @@ import javax.swing.tree.*;
 import javax.swing.event.*;
 import javax.swing.filechooser.FileSystemView;
 
-public class FileTree extends JPanel 
+public class FileTree extends JPanel
 {
     private static final long serialVersionUID = 2636670125682697966L;
-   
+
     protected JTree  m_tree;
     protected DefaultTreeModel m_model;
     protected JTextField m_display;
@@ -23,37 +23,37 @@ public class FileTree extends JPanel
         setLayout(new BorderLayout());
         DefaultMutableTreeNode top = new DefaultMutableTreeNode(
                 new IconData(null, null, "Computer"));
-        
+
         FileSystemView fsv = FileSystemView.getFileSystemView();
-        
+
         File[] roots = fsv.getRoots();
         DefaultMutableTreeNode node;
         for( int i = 0; i < roots.length; i++)
         {
-            node = new DefaultMutableTreeNode(new IconData(fsv.getSystemIcon(roots[i]), 
+            node = new DefaultMutableTreeNode(new IconData(fsv.getSystemIcon(roots[i]),
                     null, new FileNode(roots[i]), fsv.getSystemDisplayName(roots[i])));
             node.add( new DefaultMutableTreeNode(new Boolean(true)));
             top.add(node);
         }
-        
+
         m_model = new DefaultTreeModel(top);
         m_tree = new JTree(m_model);
 
         m_tree.putClientProperty("JTree.lineStyle", "Angled");
 
-        TreeCellRenderer renderer = new 
+        TreeCellRenderer renderer = new
         IconCellRenderer();
         m_tree.setCellRenderer(renderer);
 
-        m_tree.addTreeExpansionListener(new 
+        m_tree.addTreeExpansionListener(new
                 DirExpansionListener());
 
-        m_tree.addTreeSelectionListener(new 
+        m_tree.addTreeSelectionListener(new
                 DirSelectionListener());
 
         m_tree.getSelectionModel().setSelectionMode(
-                TreeSelectionModel.SINGLE_TREE_SELECTION); 
-        m_tree.setShowsRootHandles(true); 
+                TreeSelectionModel.SINGLE_TREE_SELECTION);
+        m_tree.setShowsRootHandles(true);
         m_tree.setEditable(false);
         m_tree.setRootVisible(false);
 
@@ -65,7 +65,7 @@ public class FileTree extends JPanel
         m_display.setEditable(false);
         add(m_display, BorderLayout.NORTH);
 
-        
+
         setVisible(true);
     }
 
@@ -73,20 +73,20 @@ public class FileTree extends JPanel
     {
         m_tree.addTreeSelectionListener(listener);
     }
-    
+
     DefaultMutableTreeNode getTreeNode(TreePath path)
     {
         return (DefaultMutableTreeNode)(path.getLastPathComponent());
     }
-    
+
     public void expand(File file)
-    {   
+    {
         if (file == null)
         {
             return;
         }
-        
-        
+
+
         //m_tree.expandPath(path);
     }
 
@@ -102,7 +102,7 @@ public class FileTree extends JPanel
         else
             return null;
     }
-    
+
     public Dimension getPreferredSize()
     {
         return new Dimension(300,400);
@@ -118,15 +118,15 @@ public class FileTree extends JPanel
                     event.getPath());
             final FileNode fnode = getFileNode(node);
 
-            Thread runner = new Thread() 
+            Thread runner = new Thread()
             {
-                public void run() 
+                public void run()
                 {
-                    if (fnode != null && fnode.expand(node)) 
+                    if (fnode != null && fnode.expand(node))
                     {
-                        Runnable runnable = new Runnable() 
+                        Runnable runnable = new Runnable()
                         {
-                            public void run() 
+                            public void run()
                             {
                                 m_model.reload(node);
                             }
@@ -142,8 +142,8 @@ public class FileTree extends JPanel
     }
 
 
-    class DirSelectionListener 
-    implements TreeSelectionListener 
+    class DirSelectionListener
+    implements TreeSelectionListener
     {
         public void valueChanged(TreeSelectionEvent event)
         {
@@ -160,8 +160,8 @@ public class FileTree extends JPanel
 
 }
 
-class IconCellRenderer 
-extends    JLabel 
+class IconCellRenderer
+extends    JLabel
 implements TreeCellRenderer
 {
     protected Color m_textSelectionColor;
@@ -188,12 +188,12 @@ implements TreeCellRenderer
         setOpaque(false);
     }
 
-    public Component getTreeCellRendererComponent(JTree tree, 
-            Object value, boolean sel, boolean expanded, boolean leaf, 
-            int row, boolean hasFocus) 
+    public Component getTreeCellRendererComponent(JTree tree,
+            Object value, boolean sel, boolean expanded, boolean leaf,
+            int row, boolean hasFocus)
 
     {
-        DefaultMutableTreeNode node = 
+        DefaultMutableTreeNode node =
             (DefaultMutableTreeNode)value;
         Object obj = node.getUserObject();
         setText(obj.toString());
@@ -213,27 +213,27 @@ implements TreeCellRenderer
             setIcon(null);
 
         setFont(tree.getFont());
-        setForeground(sel ? m_textSelectionColor : 
+        setForeground(sel ? m_textSelectionColor :
             m_textNonSelectionColor);
-        setBackground(sel ? m_bkSelectionColor : 
+        setBackground(sel ? m_bkSelectionColor :
             m_bkNonSelectionColor);
         m_selected = sel;
         return this;
     }
 
-    public void paintComponent(Graphics g) 
+    public void paintComponent(Graphics g)
     {
         Color bColor = getBackground();
         Icon icon = getIcon();
 
         g.setColor(bColor);
         int offset = 0;
-        if(icon != null && getText() != null) 
+        if(icon != null && getText() != null)
             offset = (icon.getIconWidth() + getIconTextGap());
         g.fillRect(offset, 0, getWidth() - 1 - offset,
                 getHeight() - 1);
 
-        if (m_selected) 
+        if (m_selected)
         {
             g.setColor(m_borderSelectionColor);
             g.drawRect(offset, 0, getWidth()-1-offset, getHeight()-1);
@@ -252,13 +252,13 @@ class IconData
     public IconData(FileNode node)
     {
         FileSystemView fsv = FileSystemView.getFileSystemView();
-        
+
         m_icon = fsv.getSystemIcon(node.getFile());
         m_expandedIcon = fsv.getSystemIcon(node.getFile());
         m_data = node;
         m_text = fsv.getSystemDisplayName(node.getFile());
     }
-    
+
     public IconData(Icon icon, Object data, String text)
     {
         m_icon = icon;
@@ -275,23 +275,23 @@ class IconData
         m_text = text;
     }
 
-    public Icon getIcon() 
-    { 
+    public Icon getIcon()
+    {
         return m_icon;
     }
 
-    public Icon getExpandedIcon() 
-    { 
+    public Icon getExpandedIcon()
+    {
         return m_expandedIcon!=null ? m_expandedIcon : m_icon;
     }
 
-    public Object getObject() 
-    { 
+    public Object getObject()
+    {
         return m_data;
     }
 
-    public String toString() 
-    {         
+    public String toString()
+    {
         return m_text;
     }
 }

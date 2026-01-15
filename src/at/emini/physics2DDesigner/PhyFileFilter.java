@@ -8,8 +8,8 @@ public class PhyFileFilter extends FileFilter
 {
 
     public boolean accept(File f)
-    {        
-        String name = f.getName().toLowerCase();        
+    {
+        String name = f.getName().toLowerCase();
         return name.endsWith(".phy");
     }
 

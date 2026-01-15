@@ -23,16 +23,16 @@ public class ObjectTreeCellRenderer extends DefaultTreeCellRenderer
                 tree, value, sel,
                 expanded, leaf, row,
                 hasFocus);
-        
+
         ObjectTreeNode node = (ObjectTreeNode) value;
         setIcon(node.getIcon());
-        
+
         DesignSelectionObject object = node.getObject();
         if (object != null)
         {
             setText(object.toString());
         }
-        
+
         return this;
     }
 

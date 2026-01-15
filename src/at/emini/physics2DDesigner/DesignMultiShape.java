@@ -11,33 +11,33 @@ import at.emini.physics2D.UserData;
 import at.emini.physics2D.util.PhysicsFileReader;
 
 
-public class DesignMultiShape extends MultiShape implements DesignShape 
+public class DesignMultiShape extends MultiShape implements DesignShape
 {
     private String name = "Unnamed Shape";
     protected Color c;
-    
+
     private static int currColor = 0;
     private static final Color defaultColors[] = {
-        new Color(180,   0,   0, 50), 
+        new Color(180,   0,   0, 50),
         new Color(180, 180,   0, 50),
         new Color(  0, 180,   0, 50),
         new Color(  0, 180, 180, 50),
         new Color(  0,   0, 180, 50),
         new Color(180,   0, 180, 50) };
 
-    public DesignMultiShape(Vector shapes) 
+    public DesignMultiShape(Vector shapes)
     {
         super(shapes);
         mUserData = new StringUserData();
-        
+
         c = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
     }
-    
-    protected DesignMultiShape(MultiShape shape) 
+
+    protected DesignMultiShape(MultiShape shape)
     {
         super(shape);
-        
+
         if( shape.getUserData() != null)
         {
             mUserData = shape.getUserData().copy();
@@ -46,39 +46,39 @@ public class DesignMultiShape extends MultiShape implements DesignShape
         {
             mUserData = new StringUserData();
         }
-        
+
         c = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
     }
-        
+
     public void setName(String name)
     {
         this.name = name;
     }
-    
+
     public String getName()
     {
         return name;
     }
-    
-    
+
+
     public String toString()
     {
         return name;
     }
-    
+
     public Color getColor()
     {
         return c;
     }
-    
+
     public void setColor(Color c)
     {
         this.c = c;
     }
-    
+
     public Color getOpaqueColor()
-    {        
+    {
         return DesignerUtilities.getGrayBlendColor(c);
     }
 
@@ -97,29 +97,29 @@ public class DesignMultiShape extends MultiShape implements DesignShape
 
     public void saveToFile(File file)
     {
-        
+
     }
-    
+
     /* (non-Javadoc)
      * @see at.emini.physics2DDesigner.DesignShape#saveToFile(at.emini.physics2DDesigner.MyFileWriter)
      */
     public void saveToFile(MyFileWriter fileWriter, Vector worldshapes)
     {
-        try 
-        {   
+        try
+        {
             fileWriter.write( (byte) mShapes.length );
             for( int i = 0; i < mShapes.length; i++)
             {
                 fileWriter.write( (byte) worldshapes.indexOf(mShapes[i]) );
             }
-            
-            StringUserData.writeToStream(fileWriter, (StringUserData) mUserData);            
+
+            StringUserData.writeToStream(fileWriter, (StringUserData) mUserData);
         }
-        catch( IOException e) 
+        catch( IOException e)
         {
             System.out.print("Error while writing file!\n");
         }
-                
+
     }
 
     public int[] getStartIndices()
@@ -135,16 +135,16 @@ public class DesignMultiShape extends MultiShape implements DesignShape
             shapes.add(getShape(i));
         }
         shapes.add(shape);
-        initShapeMembers(shapes); 
+        initShapeMembers(shapes);
     }
-    
+
     public boolean removeShape(DesignShape shape)
     {
         if (getShapeCount() <= 1)
         {
             return false;
         }
-            
+
         Vector shapes = new Vector();
         for( int i = 0; i < getShapeCount(); i++)
         {
@@ -152,9 +152,9 @@ public class DesignMultiShape extends MultiShape implements DesignShape
             {
                 shapes.add(getShape(i));
             }
-        }        
-        initShapeMembers(shapes); 
-        
+        }
+        initShapeMembers(shapes);
+
         return true;
     }
 
@@ -170,7 +170,7 @@ public class DesignMultiShape extends MultiShape implements DesignShape
         return false;
     }
 
-    
+
     public static DesignShape loadDesignShape( PhysicsFileReader reader, UserData userData, Vector shapes)
     {
         return new DesignMultiShape( MultiShape.loadShape(reader, userData, shapes));

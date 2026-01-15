@@ -16,20 +16,20 @@ public class FileNode
         m_file = file;
     }
 
-    public File getFile() 
-    { 
+    public File getFile()
+    {
         return m_file;
     }
 
-    public String toString() 
-    { 
-        return m_file.getName().length() > 0 ? m_file.getName() : 
+    public String toString()
+    {
+        return m_file.getName().length() > 0 ? m_file.getName() :
             m_file.getPath();
     }
 
     public boolean expand(DefaultMutableTreeNode parent)
     {
-        DefaultMutableTreeNode flag = 
+        DefaultMutableTreeNode flag =
             (DefaultMutableTreeNode)parent.getFirstChild();
         if (flag==null)    // No flag
             return false;
@@ -69,17 +69,17 @@ public class FileNode
         }
 
         FileSystemView fsv = FileSystemView.getFileSystemView();
-        
+
         for (int i=0; i<v.size(); i++)
         {
             FileNode nd = (FileNode)v.elementAt(i);
             IconData idata = new IconData(nd);
-            DefaultMutableTreeNode node = new 
+            DefaultMutableTreeNode node = new
             DefaultMutableTreeNode(idata);
             parent.add(node);
 
             if (nd.hasSubDirs())
-                node.add(new DefaultMutableTreeNode( 
+                node.add(new DefaultMutableTreeNode(
                         new Boolean(true) ));
         }
 
@@ -100,9 +100,9 @@ public class FileNode
     }
 
     public int compareTo(FileNode toCompare)
-    { 
+    {
         return  m_file.getName().compareToIgnoreCase(
-                toCompare.m_file.getName() ); 
+                toCompare.m_file.getName() );
     }
 
     protected File[] listFiles()
@@ -115,7 +115,7 @@ public class FileNode
         }
         catch (Exception ex)
         {
-            JOptionPane.showMessageDialog(null, 
+            JOptionPane.showMessageDialog(null,
                     "Error reading directory "+m_file.getAbsolutePath(),
                     "Warning", JOptionPane.WARNING_MESSAGE);
             return null;

@@ -27,38 +27,38 @@ public abstract class InfoPanel extends JPanel implements DesignObjectChangeList
     protected JPanel details;
     protected JLabel identifier;
     protected JButton colorChooser;
-    
+
     private boolean isSelected;
-    
+
     private Color mainColor;
     private DesignSelectionObject object = null;
     private WorldDesigner worldDesigner;
-    
+
     public InfoPanel(WorldDesigner designer)
     {
         worldDesigner = designer;
-        
+
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(Color.black));
-        
+
         mainColor = Color.lightGray;
-     
+
         initComponents();
     }
-    
+
     private void initComponents()
-    {        
-        final InfoPanel thisPanel = this; 
-        header = new JPanel(new BorderLayout());     
+    {
+        final InfoPanel thisPanel = this;
+        header = new JPanel(new BorderLayout());
         identifier = new JLabel("");
         header.add(identifier, BorderLayout.CENTER);
-        
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
-        try 
+        try
         {
-            
+
             Image image = ImageIO.read( getClass().getResourceAsStream("/res/button_colorpick.png") );
-            
+
             colorChooser = new JButton(new ImageIcon(image, "Select Color"));
             colorChooser.addActionListener(new ActionListener()
             {
@@ -69,33 +69,33 @@ public abstract class InfoPanel extends JPanel implements DesignObjectChangeList
             });
             colorChooser.setMargin(new Insets(0,0,0,0));
             colorChooser.setToolTipText("Select the color of this item.");
-        
+
             header.add(colorChooser, BorderLayout.EAST);
         }
         catch (IOException e)
         {
-            
+
         }
-           
+
         details = new JPanel();
         details.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
 
         add(header, BorderLayout.NORTH);
         add(details, BorderLayout.CENTER);
-        
+
         setMainColor(mainColor);
     }
-    
+
     protected void disableColorChooser()
     {
         colorChooser.setVisible(false);
     }
-    
+
     public void setIcon(ImageIcon icon)
     {
         identifier.setIcon(icon);
     }
-    
+
     public void resetLabel(DesignSelectionObject object)
     {
         if (object != null)
@@ -103,13 +103,13 @@ public abstract class InfoPanel extends JPanel implements DesignObjectChangeList
             identifier.setText( object.toString() );
         }
     }
-    
+
     public Dimension getMaximumSize()
     {
         int height = details.getPreferredSize().height + header.getPreferredSize().height;
         return new Dimension(400,height);
-    }    
-      
+    }
+
     private void selectColor()
     {
         Color newColor = JColorChooser.showDialog(this, "Select color", mainColor);
@@ -120,7 +120,7 @@ public abstract class InfoPanel extends JPanel implements DesignObjectChangeList
             worldChangedUpdate();
         }
     }
-    
+
     private void setMainColor(Color c)
     {
         mainColor = c;
@@ -129,33 +129,33 @@ public abstract class InfoPanel extends JPanel implements DesignObjectChangeList
     }
 
     protected abstract void updateData();
-    
+
     public void designObjectChanged(DesignSelectionObject object)
     {
         resetLabel(object);
-        updateData();        
+        updateData();
     }
-    
+
     public void setObject(DesignSelectionObject object)
-    {        
+    {
         if (this.object != null)
         {
             this.object.removeListener(this);
         }
-        
+
         if (object != null)
         {
             resetLabel(object);
             setMainColor(object.getColor());
             object.addListener(this);
-            
+
             this.object = object;
         }
     }
-    
+
     protected void worldChangedUpdate()
     {
         worldDesigner.getWorld().worldChanged();
     }
-    
+
 }

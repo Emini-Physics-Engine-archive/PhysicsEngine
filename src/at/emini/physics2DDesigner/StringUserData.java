@@ -7,38 +7,38 @@ import at.emini.physics2D.UserData;
 public class StringUserData implements UserData
 {
     private String data = "";
-    
+
     public StringUserData()
-    {   
+    {
     }
-    
+
     public StringUserData(StringUserData userData)
     {
         data = userData.data;
     }
-        
+
     public StringUserData copy()
     {
         return new StringUserData(this);
-    } 
-    
+    }
+
     public StringUserData createNewUserData(String data, int type)
     {
         StringUserData userData = new StringUserData();
         userData.data = data;
         return userData;
     }
-    
+
     public String getData()
     {
         return data;
     }
-    
+
     public void setData(String data)
     {
         this.data = data;
     }
-    
+
     public static void writeToStream(MyFileWriter writer, StringUserData userData) throws IOException
     {
         if (userData == null)

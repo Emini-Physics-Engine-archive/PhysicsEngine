@@ -23,29 +23,29 @@ import javax.swing.plaf.basic.BasicButtonUI;
 
 /**
  * Component to be used as tabComponent;
- * Contains a JLabel to show the text and 
- * a JButton to close the tab it belongs to 
- */ 
-public class ButtonTabComponent extends JPanel implements SaveChangeListener 
+ * Contains a JLabel to show the text and
+ * a JButton to close the tab it belongs to
+ */
+public class ButtonTabComponent extends JPanel implements SaveChangeListener
 {
     private final JTabbedPane pane;
 
     //private boolean saved = true;
     //private String displayName;
-    private JLabel label; 
-    
-    public ButtonTabComponent(final JTabbedPane pane, String initialName) 
+    private JLabel label;
+
+    public ButtonTabComponent(final JTabbedPane pane, String initialName)
     {
         //unset default FlowLayout' gaps
         super(new BorderLayout());
-        
-        if (pane == null) 
+
+        if (pane == null)
         {
             throw new NullPointerException("TabbedPane is null");
         }
         this.pane = pane;
         setOpaque(false);
-        
+
         //make JLabel read titles from JTabbedPane
         label = new JLabel(initialName);
 
@@ -63,7 +63,7 @@ public class ButtonTabComponent extends JPanel implements SaveChangeListener
     {
         removePane();
     }
-    
+
     public void removePane()
     {
         int i = pane.indexOfTabComponent(this);
@@ -72,17 +72,17 @@ public class ButtonTabComponent extends JPanel implements SaveChangeListener
             {
                 pane.setSelectedIndex(i - 1);
             }
-            
+
             pane.remove(i);
-        }   
+        }
     }
-    
+
     private class TabButton extends JButton implements ActionListener {
         public TabButton() {
             //int size = 17;
             //setPreferredSize(new Dimension(size, size));
             setToolTipText("Close");
-            
+
             //Make the button looks the same for all Laf's
             setUI(new BasicButtonUI());
             //Make it transparent
@@ -97,7 +97,7 @@ public class ButtonTabComponent extends JPanel implements SaveChangeListener
             setRolloverEnabled(true);
             //Close the proper tab by clicking the button
             addActionListener(this);
-            
+
             try
             {
                 Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -108,14 +108,14 @@ public class ButtonTabComponent extends JPanel implements SaveChangeListener
             {
                 e.printStackTrace();
             }
-            
+
         }
 
-        public void actionPerformed(ActionEvent e) 
+        public void actionPerformed(ActionEvent e)
         {
             close();
         }
-        
+
         //we don't want to update UI for this button
         public void updateUI() {
         }
@@ -142,9 +142,9 @@ public class ButtonTabComponent extends JPanel implements SaveChangeListener
     @Override
     public void saveStateChanged(boolean saved, File file)
     {
-        String text = (saved ? "" : "*") + ((file == null) ? "untitled" : file.getName());  
-        
-        label.setText(text); 
+        String text = (saved ? "" : "*") + ((file == null) ? "untitled" : file.getName());
+
+        label.setText(text);
         validate();
         updateUI();
     }

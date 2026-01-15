@@ -22,14 +22,14 @@ public class DesignJoint extends Joint implements DesignConstraint {
     private boolean move = false;
     private FXVector lastPosition;
     private boolean actionperformed = false;
-    
+
     private static final int jointRadius = 5; // << FXUtil.DECIMAL;
 
     protected Color color;
 
     private static int currColor = 0;
     private static final Color defaultColors[] = {
-        new Color(40,  0,  0), 
+        new Color(40,  0,  0),
         new Color(40, 40,  0),
         new Color( 0, 40,  0),
         new Color( 0, 40, 40),
@@ -40,7 +40,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
         super(b1, b2, p1, p2, fixed);
         color = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
-        
+
         mUserData = new StringUserData();
     }
 
@@ -53,19 +53,19 @@ public class DesignJoint extends Joint implements DesignConstraint {
     }
 
 
-    public DesignJoint(Joint joint, Body[] bodyMapping) 
+    public DesignJoint(Joint joint, Body[] bodyMapping)
     {
         super(joint, bodyMapping);
         color = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
-        
+
         if (mUserData == null)
         {
             mUserData = new StringUserData();
         }
     }
-    
-    public DesignJoint(DesignJoint joint, Body[] bodyMapping) 
+
+    public DesignJoint(DesignJoint joint, Body[] bodyMapping)
     {
         super(joint, bodyMapping);
         color = defaultColors[currColor];
@@ -85,12 +85,12 @@ public class DesignJoint extends Joint implements DesignConstraint {
     {
         return color;
     }
-    
+
     public void setColor(Color c)
     {
         this.color = c;
     }
-    
+
     /**
      * @param b1 Body 1
      */
@@ -119,7 +119,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
         return body1Fixed && body2Fixed;
     }
 
-    public void drawObject(GraphicsWrapper g, Color c, Color c2, boolean drawFull) 
+    public void drawObject(GraphicsWrapper g, Color c, Color c2, boolean drawFull)
     {
         if (drawFull)
         {
@@ -138,7 +138,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
         }
     }
 
-    public void drawInteractives(GraphicsWrapper g, Color c, Color c2) 
+    public void drawInteractives(GraphicsWrapper g, Color c, Color c2)
     {
         g.setColor( move ? Color.red : Color.black );
         FXVector absolute1 = new FXVector(getPoint1());
@@ -146,24 +146,24 @@ public class DesignJoint extends Joint implements DesignConstraint {
 
         if (isFixed())
         {
-            g.drawLine((int) (absolute1.xFX - jointRadius / g.getZoomScale()), (int) (absolute1.yFX), (int) (absolute1.xFX + jointRadius / g.getZoomScale()), (int) (absolute1.yFX)); 
-            g.drawLine((int) (absolute1.xFX), (int) (absolute1.yFX - jointRadius / g.getZoomScale()), (int) (absolute1.xFX), (int) (absolute1.yFX)); 
+            g.drawLine((int) (absolute1.xFX - jointRadius / g.getZoomScale()), (int) (absolute1.yFX), (int) (absolute1.xFX + jointRadius / g.getZoomScale()), (int) (absolute1.yFX));
+            g.drawLine((int) (absolute1.xFX), (int) (absolute1.yFX - jointRadius / g.getZoomScale()), (int) (absolute1.xFX), (int) (absolute1.yFX));
 
-            g.drawLine((int) (absolute2.xFX - jointRadius / g.getZoomScale()), (int) (absolute2.yFX), (int) (absolute2.xFX + jointRadius / g.getZoomScale()), (int) (absolute2.yFX)); 
+            g.drawLine((int) (absolute2.xFX - jointRadius / g.getZoomScale()), (int) (absolute2.yFX), (int) (absolute2.xFX + jointRadius / g.getZoomScale()), (int) (absolute2.yFX));
             g.drawLine((int) (absolute2.xFX), (int) (absolute2.yFX + jointRadius / g.getZoomScale()), (int) (absolute2.xFX), (int) (absolute2.yFX));
         }
         else
         {
             g.drawArc((int) (absolute1.xFX - jointRadius / g.getZoomScale()), (int) (absolute1.yFX - jointRadius / g.getZoomScale()), (int)(jointRadius * 2 / g.getZoomScale()), (int) (jointRadius * 2 / g.getZoomScale()), 0, 180);
-            g.drawLine((int) (absolute1.xFX), (int) (absolute1.yFX), (int) (absolute1.xFX), (int) (absolute1.yFX)); 
+            g.drawLine((int) (absolute1.xFX), (int) (absolute1.yFX), (int) (absolute1.xFX), (int) (absolute1.yFX));
 
             g.drawArc((int) (absolute2.xFX - jointRadius / g.getZoomScale()), (int) (absolute2.yFX - jointRadius / g.getZoomScale()), (int)(jointRadius * 2 / g.getZoomScale()), (int) (jointRadius * 2 / g.getZoomScale()), 180, 180);
             g.drawLine((int) (absolute2.xFX), (int) (absolute2.yFX), (int) (absolute2.xFX), (int) (absolute2.yFX));
         }
     }
 
-        
-    public void drawSelecting(GraphicsWrapper g, FXVector pos) 
+
+    public void drawSelecting(GraphicsWrapper g, FXVector pos)
     {
         g.setColor( Color.red );
         if (getBody1() != null)
@@ -178,13 +178,13 @@ public class DesignJoint extends Joint implements DesignConstraint {
 
     public void saveToFile(File file, Vector bodies)
     {
-        try 
+        try
         {
             MyFileWriter fileWriter = new MyFileWriter( file );
             saveToFile(fileWriter, bodies);
             fileWriter.close();
         }
-        catch( IOException e) 
+        catch( IOException e)
         {
             System.out.print("Error while writing file!\n");
         }
@@ -192,8 +192,8 @@ public class DesignJoint extends Joint implements DesignConstraint {
 
     public void saveToFile(MyFileWriter fileWriter, Vector bodies)
     {
-        try 
-        {   
+        try
+        {
             fileWriter.write( Constraint.JOINT );
 
             fileWriter.write( bodies.indexOf(getBody1()) );
@@ -201,17 +201,17 @@ public class DesignJoint extends Joint implements DesignConstraint {
             fileWriter.write( bodies.indexOf(getBody2()) );
             fileWriter.writeFX( getRawPoint2() );
             fileWriter.write( isFixed() ? 1 : 0 );
-            
+
             StringUserData.writeToStream(fileWriter, (StringUserData) mUserData);
         }
-        catch( IOException e) 
+        catch( IOException e)
         {
             System.out.print("Error while writing file!\n");
         }
 
     }
 
-    public static Joint loadFromFile(File file, Vector bodies, UserData userData) 
+    public static Joint loadFromFile(File file, Vector bodies, UserData userData)
     {
         PhysicsFileReader reader = new PhysicsFileReader(file);
 
@@ -223,11 +223,11 @@ public class DesignJoint extends Joint implements DesignConstraint {
     public boolean canMovePoint(GraphicsWrapper g, FXVector point, FXVector mousePos)
     {
         FXVector tmp = new FXVector(point);
-        tmp.subtract(mousePos); 
+        tmp.subtract(mousePos);
         return tmp.lengthFX() < jointRadius / g.getZoomScale();
     }
 
-    public int getAction(GraphicsWrapper g, FXVector mousePos) 
+    public int getAction(GraphicsWrapper g, FXVector mousePos)
     {
         if (canMovePoint(g, getPoint1(), mousePos) || canMovePoint(g, getPoint2(), mousePos))
         {
@@ -246,28 +246,28 @@ public class DesignJoint extends Joint implements DesignConstraint {
         return getPoint1().isInRect(p1, p2) || getPoint2().isInRect(p1, p2);
     }
 
-    public FXVector makeMove(FXVector mousepos) 
+    public FXVector makeMove(FXVector mousepos)
     {
         actionperformed = true;
         if (move)
         {
             FXVector diff = new FXVector(mousepos);
-            diff.subtract(lastPosition);    
+            diff.subtract(lastPosition);
             if (diff.lengthFX() > 0)
             {
-                FXVector absolutePoint = getPoint1();            
+                FXVector absolutePoint = getPoint1();
                 absolutePoint.add(diff);
                 setFixPoint(absolutePoint);
 
             }
 
-            lastPosition = new FXVector(mousepos);           
+            lastPosition = new FXVector(mousepos);
             return diff;
         }
         return new FXVector();
     }
 
-    public int setAction(GraphicsWrapper g, FXVector mousePos, FXVector gridPos) 
+    public int setAction(GraphicsWrapper g, FXVector mousePos, FXVector gridPos)
     {
         if (move)
         {
@@ -288,7 +288,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
             setFixPoint(gridPos);
 
             FXVector diff = new FXVector(gridPos);
-            diff.subtract(getPoint2());    
+            diff.subtract(getPoint2());
             diff.add(getPoint1());
 
             lastPosition = diff;
@@ -314,7 +314,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
         lastPosition = gridPos;
     }
 
-    public boolean unsetAction() 
+    public boolean unsetAction()
     {
         boolean returnval = hasAction() && actionperformed;
         move = false;
@@ -323,7 +323,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
         return returnval;
     }
 
-    public boolean hasAction() 
+    public boolean hasAction()
     {
         return move;
     }
@@ -333,7 +333,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
     {
         listeners.add(listener);
     }
-    
+
     public void removeListener(DesignObjectChangeListener listener)
     {
         listeners.remove(listener);
@@ -344,9 +344,9 @@ public class DesignJoint extends Joint implements DesignConstraint {
         int scaleFX = (int) (scale * FXUtil.ONE_FX);
         this.getRawPoint1().multFX(scaleFX);
         this.getRawPoint2().multFX(scaleFX);
-        
+
     }
-    
+
     public void notifyListeners()
     {
         for(int i = 0; i < listeners.size(); i++)
@@ -354,7 +354,7 @@ public class DesignJoint extends Joint implements DesignConstraint {
             ((DesignObjectChangeListener) listeners.elementAt(i)).designObjectChanged(this);
         }
     }
-    
+
     public String toString()
     {
         return "Joint " + (isFixed() ? "(fixed) " : " ") + "(" + getBody1().getId() + " - " + getBody2().getId() + ")";

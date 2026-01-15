@@ -12,14 +12,14 @@ import at.emini.physics2D.ShapeSet;
 public class DesignShapeSet extends ShapeSet
 {
     private Vector images = new Vector();
-    
+
     private int stdShapeCount = 0;
-    
+
     public DesignShapeSet()
     {
         super();
     }
-    
+
     public DesignShapeSet(ShapeSet set)
     {
         super(set);
@@ -38,17 +38,17 @@ public class DesignShapeSet extends ShapeSet
             }
         }
     }
-    
+
     public ShapeSet copy()
     {
         return new DesignShapeSet(this);
     }
-    
+
     public void registerShape(Shape s)
     {
         registerShape(s, null);
     }
-    
+
     public void registerShapes(Vector newShapes)
     {
         for( int i = 0; i < newShapes.size(); i++)
@@ -56,18 +56,18 @@ public class DesignShapeSet extends ShapeSet
             registerShape((Shape) newShapes.get(i), null);
         }
     }
-    
+
     public void registerShape(Shape s, Image i)
     {
         super.registerShape(s);
-        if (! (s instanceof MultiShape)) 
+        if (! (s instanceof MultiShape))
         {
             stdShapeCount ++;
         }
-        
-        images.addElement(i);        
+
+        images.addElement(i);
     }
-    
+
     public void registerImage(BufferedImage  image, int index)
     {
         if (index < images.size())
@@ -75,7 +75,7 @@ public class DesignShapeSet extends ShapeSet
             images.setElementAt(image, index);
         }
     }
-    
+
     public void registerImageForShape(BufferedImage image, Shape s)
     {
         int index = s.getId();
@@ -91,25 +91,25 @@ public class DesignShapeSet extends ShapeSet
      * @return
      */
     public BufferedImage getImage(Body b)
-    {  
+    {
         Object image = images.elementAt(b.shape().getId());
         if (image == null) return null;
         return (BufferedImage) image;
     }
-    
-    
+
+
     /**
      * return the corresponding image to a shape
      * @param s the shape
      * @return
      */
     public Image getImage(Shape s)
-    {  
+    {
         Object image = images.elementAt(s.getId());
         if (image == null) return null;
         return (Image) image;
     }
-    
+
 
     public void removeShape(Shape s)
     {
@@ -117,27 +117,27 @@ public class DesignShapeSet extends ShapeSet
         int index = -1;
         for( int i = 0; i < mShapes.size(); i++)
         {
-            if (((Shape) mShapes.elementAt(i)) == s) 
+            if (((Shape) mShapes.elementAt(i)) == s)
             {
                 index = i;
                 break;
             }
         }
-        
+
         if (!(s instanceof MultiShape) )
         {
             stdShapeCount--;
         }
-        
+
         mShapes.remove(index);
         images.remove(index);
-        
+
         for( int i = index; i < mShapes.size(); i++)
         {
             correctShapeId(i);
         }
     }
-    
+
     public int getStdShapeCount()
     {
         return stdShapeCount;

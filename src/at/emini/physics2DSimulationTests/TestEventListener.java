@@ -9,10 +9,10 @@ public class TestEventListener implements PhysicsEventListener {
 
     public static final int MUST_OCCUR = 1;
     public static final int MUST_NOT_OCCUR = 2;
-    
+
     private Vector testCriteria = new Vector();
     private Vector triggeredEvents = new Vector();
-    
+
     private int currentTime = 0;
 
     private class TestCriterium
@@ -26,34 +26,34 @@ public class TestEventListener implements PhysicsEventListener {
         }
         public int eventId;
         public int criteriumType;
-        public int startTime;        
-        public int endTime;        
+        public int startTime;
+        public int endTime;
     }
-    
+
     private class EventTriggered
     {
-        public EventTriggered(int eventId, int triggerTime) 
+        public EventTriggered(int eventId, int triggerTime)
         {
             this.eventId = eventId;
             this.triggerTime = triggerTime;
         }
         public int eventId;
-        public int triggerTime;        
+        public int triggerTime;
     }
-    
+
     public TestEventListener()
     {
     }
-    
+
     public void setTime(int currTime)
     {
         currentTime = currTime;
     }
-    
+
     public boolean checkTest()
     {
         boolean testSuccess = true;
-        
+
         //check each criterium
         for( int i = 0; i < testCriteria.size(); i++)
         {
@@ -63,7 +63,7 @@ public class TestEventListener implements PhysicsEventListener {
             for( int j = 0; j < triggeredEvents.size(); j++)
             {
                 EventTriggered event = ((EventTriggered) triggeredEvents.elementAt(j));
-                if (event.eventId == criterium.eventId && 
+                if (event.eventId == criterium.eventId &&
                     event.triggerTime >= criterium.startTime &&
                     event.triggerTime <= criterium.endTime)
                 {
@@ -71,31 +71,31 @@ public class TestEventListener implements PhysicsEventListener {
                     break;
                 }
             }
-            
+
             if (criterium.criteriumType == MUST_OCCUR && ! eventOccurs)
             {
-                System.err.println("Exepected Event " + criterium.eventId + 
+                System.err.println("Exepected Event " + criterium.eventId +
                         " in [" + criterium.startTime + ", " + criterium.endTime + "]");
                 testSuccess = false;
                 break;
             }
             else if (criterium.criteriumType == MUST_NOT_OCCUR && eventOccurs)
             {
-                System.err.println("Not Exepected Event " + criterium.eventId + 
+                System.err.println("Not Exepected Event " + criterium.eventId +
                         " in [" + criterium.startTime + ", " + criterium.endTime + "]");
                 testSuccess = false;
                 break;
-            }            
+            }
         }
-        
+
         return testSuccess;
     }
-    
+
     public void addTestCriterium(int eventId, int criteriumType, int startTime, int endTime)
     {
         testCriteria.addElement(new TestCriterium(eventId, criteriumType, startTime, endTime) );
     }
-    
+
     public void eventTriggered(Event e, Object param) {
         triggeredEvents.addElement(new EventTriggered(e.getIdentifier(), currentTime) );
     }

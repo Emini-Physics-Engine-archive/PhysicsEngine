@@ -7,10 +7,10 @@ import at.emini.physics2D.util.FXVector;
 
 public class BalloonForce implements ExternalForce
 {
-    
+
     private Body balloon;
     private FXVector force;
-     
+
     public BalloonForce(Body balloon, FXVector force)
     {
         this.balloon = balloon;

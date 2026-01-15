@@ -11,7 +11,7 @@ public class WorldConvert
     static final String arg_help = "-help";
     static final String arg_file = "-file";
     static final String arg_out = "-out";
-    
+
     public static void main(String[] args)
     {
         boolean helpFound = false;
@@ -19,14 +19,14 @@ public class WorldConvert
         String newfilename = "";
         for( int i = 0; i< args.length; i++)
         {
-            if (args[i].equals(arg_file)) 
+            if (args[i].equals(arg_file))
             {
                 i++;
                 if (i >= args.length) break;
                 filename = args[i];
                 continue;
             }
-            if (args[i].equals(arg_out)) 
+            if (args[i].equals(arg_out))
             {
                 i++;
                 if (i >= args.length) break;
@@ -35,14 +35,14 @@ public class WorldConvert
             }
             if (args[i].equals(arg_help)) helpFound = true;
         }
-        
+
         //check parameters
         if (helpFound || filename.length() == 0)
         {
             displayHelp();
             System.exit(0);
         }
-        
+
         //start converting
         DesignWorld world = null;
         File file = null;
@@ -50,22 +50,22 @@ public class WorldConvert
         {
             file = new File(filename);
             world = DesignWorld.loadFromFile(file);
-        }            
+        }
         catch(Exception e)
         {
             System.out.println("The file could not be loaded!\n");
             System.exit(1);
         }
-        
-        performConversion(world);        
-                
+
+        performConversion(world);
+
         //create new filename
         if (newfilename.length() == 0)
         {
             newfilename = filename.substring(0, filename.lastIndexOf("."));
             newfilename+= "_new.phy";
         }
-        
+
         File newfile = null;
         try {
             newfile = new File(newfilename);
@@ -77,10 +77,10 @@ public class WorldConvert
             e.printStackTrace();
             System.exit(1);
         }
-        
+
         System.out.println("Scaled File saved as: " + newfile + "\n");
     }
-    
+
     private static void displayHelp()
     {
         System.out.println(
@@ -92,7 +92,7 @@ public class WorldConvert
         "\n"
         );
     }
-    
+
     private static void performConversion(DesignWorld world)
     {
         int bodyCount = world.getBodyCount();
@@ -100,8 +100,8 @@ public class WorldConvert
         for( int i = bodyCount - 1; i >= 0 ; i--)
         {
             String shapeString = ((StringUserData) bodies[i].shape().getUserData()).getData();
-            if (! bodies[i].isDynamic() && 
-                ! bodies[i].isInteracting() && 
+            if (! bodies[i].isDynamic() &&
+                ! bodies[i].isInteracting() &&
                 ! shapeString.equals("item"))
             {
                 String addData = ",";
@@ -109,11 +109,11 @@ public class WorldConvert
                 addData += "," + bodies[i].positionFX().xFX;
                 addData += "," + bodies[i].positionFX().yFX;
                 world.removeBody(bodies[i]);
-                
+
                 StringUserData worldData = ((StringUserData) world.getUserData());
                 String orig = worldData.getData();
                 worldData.setData(orig + addData);
-            }      
+            }
         }
     }
 }

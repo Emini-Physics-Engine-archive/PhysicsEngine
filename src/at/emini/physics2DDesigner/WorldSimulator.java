@@ -28,22 +28,22 @@ import at.emini.physics2D.Event;
 import at.emini.physics2D.PhysicsEventListener;
 import at.emini.physics2D.util.FXUtil;
 
-public class WorldSimulator extends MovePanel implements PhysicsEventListener 
+public class WorldSimulator extends MovePanel implements PhysicsEventListener
 {
 
     private static final long serialVersionUID = -4854612100379355683L;
-    
+
     private DesignWorld world;
     private SimulatorThread simulation;
-    
+
     private Color defaultBackgroundColor = new Color(250,253,255);
     private Color backgroundColor = new Color(250,253,255);
     //private Color backgroundColor = new Color(255,255,255, 20);
-    
+
     private JToolBar viewOptions;
     private JTextArea messageArea;
     private JScrollPane messageScrollArea;
-    
+
     JToggleButton showMessages;
     JToggleButton drawContacts;
     JToggleButton drawBodyTrajectory;
@@ -55,30 +55,30 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
     FXSpinner opacity;
 
     private static boolean antialiasing = false;
-    
-    public WorldSimulator(DesignWorld world) 
+
+    public WorldSimulator(DesignWorld world)
     {
         super(true, true);
         this.world = world;
         simulation = new SimulatorThread(world, canvas, this, 1);
         simulation.start();
-        
+
         initComponents();
         centerInitialization = true;
     }
-    
+
     private void initComponents()
-    {                
+    {
         viewOptions = new JToolBar();
         messageArea = new JTextArea();
         messageArea.setRows(8);
         messageArea.setEditable(false);
         messageScrollArea = new JScrollPane(messageArea);
         messageScrollArea.setVisible(false);
-                
+
         try
         {
-            Image image = ImageIO.read( getClass().getResourceAsStream("/res/button_messages.png") );        
+            Image image = ImageIO.read( getClass().getResourceAsStream("/res/button_messages.png") );
             showMessages = new JToggleButton( new ImageIcon(image, "Show Messages"));
             showMessages.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -88,8 +88,8 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             showMessages.setToolTipText("Show Messages");
             viewOptions.add(showMessages);
             viewOptions.addSeparator();
-            
-            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_contacts.png") );        
+
+            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_contacts.png") );
             drawContacts = new JToggleButton( new ImageIcon(image, "Show Contacts"));
             drawContacts.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -98,8 +98,8 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             });
             drawContacts.setToolTipText("Show Contacts");
             viewOptions.add(drawContacts);
-            
-            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_body_trajectory.png") );        
+
+            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_body_trajectory.png") );
             drawBodyTrajectory = new JToggleButton( new ImageIcon(image, "Show Body Trajectories"));
             drawBodyTrajectory.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -109,8 +109,8 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             drawBodyTrajectory.setSelected(true);
             drawBodyTrajectory.setToolTipText("Show Body Trajectories");
             viewOptions.add(drawBodyTrajectory);
-            
-            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_aabb.png") );        
+
+            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_aabb.png") );
             drawAABB = new JToggleButton( new ImageIcon(image, "Show AABB"));
             drawAABB.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -119,8 +119,8 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             });
             drawAABB.setToolTipText("Show Axis Aligned Boundary Boxes");
             viewOptions.add(drawAABB);
-            
-            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_vertex_trajectory.png") );        
+
+            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_vertex_trajectory.png") );
             drawVertexTrajectory = new JToggleButton( new ImageIcon(image, "Show Vertex Trajectories"));
             drawVertexTrajectory.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -129,8 +129,8 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             });
             drawVertexTrajectory.setToolTipText("Show Vertex Trajectories");
             viewOptions.add(drawVertexTrajectory);
-            
-            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_design_info.png") );        
+
+            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_design_info.png") );
             drawDesignInfo = new JToggleButton( new ImageIcon(image, "Show Design Elements"));
             drawDesignInfo.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -139,8 +139,8 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             });
             drawDesignInfo.setToolTipText("Show Design Elements");
             viewOptions.add(drawDesignInfo);
-            
-            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_particle_lines.png") );        
+
+            image = ImageIO.read( getClass().getResourceAsStream("/res/button_draw_particle_lines.png") );
             drawParticleTrajectory = new JToggleButton( new ImageIcon(image, "Show Particle trajectory"));
             drawParticleTrajectory.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -154,10 +154,10 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
         {
             e.printStackTrace();
         }
-        
-        
+
+
         opacity = new FXSpinner(FXUtil.ONE_FX, 0.0, 1.0, 0.1, FXUtil.DECIMAL);
-        opacity.addChangeListener( new ChangeListener() {        
+        opacity.addChangeListener( new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 updateDesignWorld();
             }
@@ -165,58 +165,58 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
         opacity.setMaximumSize(new Dimension(50,30));
         viewOptions.add(new JLabel("Opacity"));
         viewOptions.add(opacity);
-        
+
         JPanel hold = new JPanel(new BorderLayout());
-        
+
         hold.add(viewOptions, BorderLayout.NORTH);
         hold.add(messageScrollArea, BorderLayout.CENTER);
         add(hold, BorderLayout.SOUTH);
     }
-    
+
     public void registerInfoPanel(SimulationBodyInfoPanel infoPanel)
     {
         simulation.registerInfoPanel(infoPanel);
     }
-    
-    public void setWorld(DesignWorld world) 
+
+    public void setWorld(DesignWorld world)
     {
         this.world = world;
         simulation.setWorld(world);
         updateDesignWorld();
         refresh();
     }
-        
-    
+
+
     private void updateDesignWorld()
-    {   
+    {
         simulation.setDrawParameter(
-                drawContacts.isSelected(), 
-                drawBodyTrajectory.isSelected(), 
+                drawContacts.isSelected(),
+                drawBodyTrajectory.isSelected(),
                 drawVertexTrajectory.isSelected(),
-                drawDesignInfo.isSelected(), 
-                drawParticleTrajectory.isSelected(), 
+                drawDesignInfo.isSelected(),
+                drawParticleTrajectory.isSelected(),
                 drawAABB.isSelected());
-        
+
         backgroundColor = new Color(
                 defaultBackgroundColor.getRed(),
                 defaultBackgroundColor.getGreen(),
                 defaultBackgroundColor.getBlue(),
                 (opacity.getValueFX() * 255) / FXUtil.ONE_FX); //#FX2F (int) (opacity.getValueFX() * 255));
-        
+
     }
-    
+
     private void showMessages()
     {
         messageScrollArea.setVisible(showMessages.isSelected());
         validate();
     }
-    
+
     public void clearBackground(GraphicsWrapper g)
-    {   
+    {
         g.setColor(backgroundColor);
         g.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
-    
+
     public void paintCanvas(GraphicsWrapper g)
     {
         if(antialiasing)
@@ -224,88 +224,88 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             g.setStroke( new BasicStroke(4096) );
         }
-        simulation.draw(g);        
+        simulation.draw(g);
     }
-    
-    public void componentShown(ComponentEvent e) 
+
+    public void componentShown(ComponentEvent e)
     {
         updateDesignWorld();
-        simulation.restartSimulation();        
+        simulation.restartSimulation();
         //world.recalculateBodyInternals();
         super.componentShown(e);
-        
+
         refresh();
     }
-    
-    public void componentHidden(ComponentEvent e) 
+
+    public void componentHidden(ComponentEvent e)
     {
         simulation.end();
         super.componentHidden(e);
     }
-    
 
-    public void startSimulation() 
+
+    public void startSimulation()
     {
         updateDesignWorld();
-        
+
         if (imageBuffer != null)
         {
             Graphics g = imageBuffer.getGraphics();
             g.setColor(Color.white);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
-        
+
         simulation.restart();
     }
 
-    public void restartSimulation() 
+    public void restartSimulation()
     {
         simulation.end();
         updateDesignWorld();
         messageArea.setText("");
-        
+
         if (imageBuffer != null)
         {
             Graphics g = imageBuffer.getGraphics();
             g.setColor(Color.white);
             g.fillRect(0, 0, getWidth(), getHeight());
         }
-        simulation.restartSimulation(); 
-                
+        simulation.restartSimulation();
+
         refresh();
     }
-    
-    public void tickSimulation() 
+
+    public void tickSimulation()
     {
         updateDesignWorld();
         simulation.tick();
-        
+
     }
 
-    public void stopSimulation() 
+    public void stopSimulation()
     {
         simulation.end();
     }
-    
-    public void eventTriggered(Event e, Object param) 
+
+    public void eventTriggered(Event e, Object param)
     {
         String text = messageArea.getText();
         text += "Event at " +  simulation.getStepCount() + ": " +  e.getIdentifier() + "\n";
         messageArea.setText(text);
         messageArea.setCaretPosition(text.length());
     }
-   
-    public void mousePressed(MouseEvent e) 
+
+    public void mousePressed(MouseEvent e)
     {
         simulation.setInteractionBodyAt(calcFXPosition(e.getX(), e.getY()));
-        
+
         if (! simulation.hasInteraction())
         {
             super.mousePressed(e);
         }
     }
-    
-    public void mouseDragged(MouseEvent e) 
+
+    public void mouseDragged(MouseEvent e)
     {
         if (simulation.hasInteraction())
         {
@@ -316,17 +316,17 @@ public class WorldSimulator extends MovePanel implements PhysicsEventListener
             super.mouseDragged(e);
         }
     }
-    
-    public void mouseReleased(MouseEvent e) 
+
+    public void mouseReleased(MouseEvent e)
     {
         super.mouseReleased(e);
         simulation.clearInteractionBody();
     }
-    
-    public void mouseExited(MouseEvent e) 
+
+    public void mouseExited(MouseEvent e)
     {
         simulation.clearInteractionBody();
     }
-      
+
 }
 

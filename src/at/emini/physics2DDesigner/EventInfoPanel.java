@@ -19,68 +19,68 @@ public abstract class EventInfoPanel extends InfoPanel implements WorldChangeLis
     private static final long serialVersionUID = -1781002635360840046L;
 
     protected DesignPhysicsEvent event;
-    
+
     protected JCheckBox triggeredOnce;
     protected JCheckBox show;
     private JTextArea userData;
-    
+
     public EventInfoPanel(WorldDesigner designer)
     {
         super(designer);
-       
+
         initComponents();
     }
-    
+
     private void initComponents()
     {
         show = new JCheckBox();
         show.setOpaque(false);
         show.setToolTipText("Show Event");
         show.addItemListener(new ItemListener()
-        {        
+        {
             public void itemStateChanged(ItemEvent e)
             {
                 showEvent();
             }
         } );
         header.add(show, BorderLayout.EAST);
-        
+
         details.setLayout(new BorderLayout() );
-        
+
         JPanel hold = new JPanel();
         hold.setLayout(new BoxLayout(hold, BoxLayout.Y_AXIS));
-        
+
         triggeredOnce = new JCheckBox("Trigger once");
         triggeredOnce.addItemListener(new ItemListener()
-        {        
+        {
             public void itemStateChanged(ItemEvent e)
             {
                 setTriggeredOnce();
             }
         } );
         hold.add(triggeredOnce);
-        
+
         userData = new JTextArea(3, 10);
         userData.getDocument().addDocumentListener(new DocumentListener()
         {
             public void removeUpdate(DocumentEvent e){
                 saveEvent();
-            }        
+            }
             public void insertUpdate(DocumentEvent e){
                 saveEvent();
-            }        
+            }
             public void changedUpdate(DocumentEvent e){
                 saveEvent();
             }
         });
         hold.add(new JScrollPane(userData));
-        
+
         details.add(hold, BorderLayout.SOUTH);
-        
+
         resetLabel();
         validate();
     }
-    
+
     private boolean updateData = false; //update lock
     public void updateData()
     {
@@ -88,7 +88,7 @@ public abstract class EventInfoPanel extends InfoPanel implements WorldChangeLis
         userData.setText(((StringUserData) event.getUserData()).getData());
         updateData = false;
     }
-    
+
     public void saveEvent()
     {
         if (event != null && ! updateData)
@@ -97,63 +97,63 @@ public abstract class EventInfoPanel extends InfoPanel implements WorldChangeLis
             worldChangedUpdate();
         }
     }
-    
-    
-    
+
+
+
     public void resetLabel()
     {
         if (event != null)
         {
             identifier.setText("Event: " + event.getIdentifier());
         }
-    }    
-        
+    }
+
     private void setTriggeredOnce()
     {
-        event.setTriggerOnce(triggeredOnce.isSelected());        
+        event.setTriggerOnce(triggeredOnce.isSelected());
     }
-    
+
     private void showEvent()
     {
         event.setVisible(show.isSelected());
         worldChangedUpdate();
     }
 
-    public DesignPhysicsEvent getEvent() 
+    public DesignPhysicsEvent getEvent()
     {
         return event;
     }
 
-    
+
     public void setObject(DesignSelectionObject event)
     {
         if (! ( event instanceof DesignPhysicsEvent) )
         {
             return;
         }
-        
+
         if (this.event != null && this.event instanceof DesignPhysicsEvent)
         {
             ((DesignPhysicsEvent) this.event).removeListener(this);
         }
-        
-        
+
+
         super.setObject(event);
-            
+
         this.event = (DesignPhysicsEvent) event;
         if (this.event != null)
-        {            
-            this.event.addListener(this);            
-            
+        {
+            this.event.addListener(this);
+
             updateData();
         }
     }
-        
-    
+
+
     public void worldChanged(DesignWorld w)
-    {        
+    {
     }
-    
+
     public void updateRequired()
     {
         updateData();

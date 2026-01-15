@@ -24,30 +24,30 @@ public class ObjectTreeCellEditor implements TreeCellEditor
     private JointInfoPanel jointInfoPanel;
     private WorldInfoPanel parameterInfoPanel;
     private BodyAreaEventInfoPanel bodyAreaInfoPanel;
-    
+
     private JLabel defaultPanel;
-    
+
     public ObjectTreeCellEditor(WorldDesigner worldDesigner)
     {
         defaultPanel = new JLabel();
-        
+
         bodyInfoPanel = new BodyInfoPanel(worldDesigner);
         landscapeInfoPanel = new LandscapeInfoPanel(worldDesigner);
         springInfoPanel = new SpringInfoPanel(worldDesigner);
         motorInfoPanel = new MotorInfoPanel(worldDesigner);
         particleInfoPanel = new ParticleInfoPanel(worldDesigner);
-        jointInfoPanel = new JointInfoPanel(worldDesigner);        
+        jointInfoPanel = new JointInfoPanel(worldDesigner);
         parameterInfoPanel = new WorldInfoPanel(worldDesigner);
         bodyAreaInfoPanel = new BodyAreaEventInfoPanel(worldDesigner);
-                
+
     }
-    
+
     public Component getTreeCellEditorComponent(JTree tree, Object value,
             boolean isSelected, boolean expanded, boolean leaf, int row)
     {
         ObjectTreeNode node = (ObjectTreeNode) value;
         DesignSelectionObject object = ((ObjectTreeNode) value).getObject();
-                
+
         InfoPanel infoPanel = null;
         if (object instanceof DesignBody)
         {
@@ -67,28 +67,28 @@ public class ObjectTreeCellEditor implements TreeCellEditor
         }
         else if (object instanceof DesignParticleEmitter)
         {
-            infoPanel = particleInfoPanel;            
+            infoPanel = particleInfoPanel;
         }
         else if (object instanceof DesignJoint)
         {
-            infoPanel = jointInfoPanel;            
+            infoPanel = jointInfoPanel;
         }
         else if (object instanceof DesignParameter)
         {
-            infoPanel = parameterInfoPanel;            
+            infoPanel = parameterInfoPanel;
         }
         else if (object instanceof DesignAreaEvent)
         {
-            infoPanel = bodyAreaInfoPanel;            
+            infoPanel = bodyAreaInfoPanel;
         }
-        
+
         if (infoPanel != null)
         {
             infoPanel.setObject(object);
             infoPanel.setIcon(node.getIcon());
             return infoPanel;
         }
-                
+
         defaultPanel.setIcon(node.getIcon());
         if (object != null)
         {
@@ -96,15 +96,15 @@ public class ObjectTreeCellEditor implements TreeCellEditor
         }
         else
         {
-            defaultPanel.setText(node.toString());    
+            defaultPanel.setText(node.toString());
         }
-        
+
         return defaultPanel;
     }
 
     public void addCellEditorListener(CellEditorListener l)
     {
-        listeners.add(l);        
+        listeners.add(l);
     }
 
     public void cancelCellEditing()
@@ -122,7 +122,7 @@ public class ObjectTreeCellEditor implements TreeCellEditor
     }
 
     public boolean isCellEditable(EventObject anEvent)
-    {   
+    {
         if ( anEvent instanceof InputEvent)
         {
             ((InputEvent) anEvent).consume();

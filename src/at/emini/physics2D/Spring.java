@@ -10,12 +10,12 @@ import at.emini.physics2D.util.PhysicsFileReader;       //#NoBasic
  * The Spring class represents a spring constraint on two bodies body. <br>
  * The constraint connects two bodies by a spring.
  * It fixes the distance of two points relative to two bodies like a physical spring.
- * The spring constant can be adjusted. 
- * A fixed mode is also possible, where no slack is allowed. 
- * 
+ * The spring constant can be adjusted.
+ * A fixed mode is also possible, where no slack is allowed.
+ *
  * @author Alexander Adensamer
  */
-public class Spring implements Constraint 
+public class Spring implements Constraint
 {
 
     /**
@@ -26,7 +26,7 @@ public class Spring implements Constraint
      * Second Body
      */
     Body mBody2;
-    
+
     /**
      * First anchor point, relative to body 1
      */
@@ -35,25 +35,25 @@ public class Spring implements Constraint
      * Second anchor point, relative to body 2
      */
     FXVector mPoint2; // relative point in body2, where the joint is fixed
-    
+
     /**
-     * The distance of the constraint.  
+     * The distance of the constraint.
      * if both anchor points have exactly this distance, no (constraint) force is acting on the bodies
      * @fx
      */
     int mDistanceFX;
-    
+
     /**
      * The spring coefficient (0 = no spring) FX
      * @fx
      */
     protected int mCoefficientFX = 0;
-    
+
     /**
      * User data
      */
     protected UserData mUserData = null;
-    
+
     //precalculated Values;
     private long mOmegaTerm1FX;
     private long mOmegaTerm2FX;
@@ -62,16 +62,16 @@ public class Spring implements Constraint
     private FXVector mR1 = new FXVector();
     private FXVector mR2 = new FXVector();
     private long mMassEffectiveInv2FX;
-    
+
     private int mAccumulatedLambdaFX = 0;
-    
+
     //temporary vectors
     private static FXVector M_impulse = new FXVector();
     private static FXVector M_temp1 = new FXVector();
-    private static FXVector M_temp2 = new FXVector();    
-    
+    private static FXVector M_temp2 = new FXVector();
+
     /**
-     * Constructor. 
+     * Constructor.
      * @param b1 Body 1.
      * @param b2 Body 2.
      * @param p1 relative point 1.
@@ -83,24 +83,24 @@ public class Spring implements Constraint
     {
         mBody1 = b1;
         mBody2 = b2;
-        
+
         mPoint1 = p1;
         mPoint2 = p2;
-        
+
         if (distance < 0 )
         {
-            calcDistance();              
+            calcDistance();
         }
         else
         {
             mDistanceFX = distance << FXUtil.DECIMAL;
         }
     }
-    
+
     /**
      * Copy constructor.
-     * @param other the source spring object. 
-     * @param bodyMapping the mapping of bodies in the new world (null if not used). 
+     * @param other the source spring object.
+     * @param bodyMapping the mapping of bodies in the new world (null if not used).
      */
     protected Spring(Spring other, Body[] bodyMapping)
     {
@@ -110,7 +110,7 @@ public class Spring implements Constraint
             mBody2 = other.mBody2;
         }
         else
-        {   
+        {
             mBody1 = bodyMapping[other.mBody1.mId];
             mBody2 = bodyMapping[other.mBody2.mId];
         }
@@ -118,49 +118,49 @@ public class Spring implements Constraint
         mPoint2 = new FXVector(other.mPoint2);;
         mDistanceFX = other.mDistanceFX;
         mCoefficientFX = other.mCoefficientFX;
-        
+
         if (other.mUserData != null)
         {
             mUserData = other.mUserData.copy();
         }
-           
+
     }
-    
+
     /**
      * Copies the spring.
-     * @param bodyMapping the mapping of bodies in the new world (null if not used). 
+     * @param bodyMapping the mapping of bodies in the new world (null if not used).
      * @return a deep copy of the constraint.
      */
     public Constraint copy(Body[] bodyMapping)
-    {   
+    {
         return new Spring(this, bodyMapping);
     }
-    
+
     /**
      * Empty constructor.
      */
     private Spring(){}
-    
+
     /**
-     * Loads a spring from a stream. 
-     * @param reader the file reader. 
-     * @param bodies the list of bodies that is references by indices in the stream. 
-     * @return the loaded spring constraint. 
+     * Loads a spring from a stream.
+     * @param reader the file reader.
+     * @param bodies the list of bodies that is references by indices in the stream.
+     * @return the loaded spring constraint.
      */
     //#NoBasic /*
     //#WorldLoadingOFF /*
-    public static Spring loadSpring(PhysicsFileReader reader, Vector bodies, UserData userData) 
+    public static Spring loadSpring(PhysicsFileReader reader, Vector bodies, UserData userData)
     {
 
         Spring spring = new Spring();
-        
+
         spring.mBody1 = (Body) bodies.elementAt(reader.next()) ;
         spring.mPoint1 = reader.nextVector();
         spring.mBody2 = (Body) bodies.elementAt(reader.next()) ;
         spring.mPoint2 = reader.nextVector();
         spring.mDistanceFX = reader.nextIntFX();
         spring.mCoefficientFX = reader.nextIntFX();
-        
+
         if (reader.getVersion() > World.VERSION_7)
         {
             String userDataString = reader.nextString();
@@ -169,15 +169,15 @@ public class Spring implements Constraint
                 spring.mUserData = userData.createNewUserData(userDataString, UserData.TYPE_CONSTRAINT);
             }
         }
-        
-        return spring;        
+
+        return spring;
     }
-    //#WorldLoadingOFF */    
-    //#NoBasic */    
-    
+    //#WorldLoadingOFF */
+    //#NoBasic */
+
     /**
      * Calculates the default distance.
-     * The current distance is computed based on the current body positions. 
+     * The current distance is computed based on the current body positions.
      */
     protected void calcDistance()
     {
@@ -185,34 +185,34 @@ public class Spring implements Constraint
         {
             mBody1.getAbsoluePoint(mPoint1, M_temp1);
             mBody2.getAbsoluePoint(mPoint2, M_temp2);
-            
+
             FXVector p1p2 = new FXVector(M_temp2);
             p1p2.subtract(M_temp1);
             mDistanceFX = p1p2.lengthFX();
         }
     }
-    
+
     /**
-     * Sets the spring coefficient. 
+     * Sets the spring coefficient.
      * @param coeff the coefficient.
-     * @see #mCoefficientFX 
+     * @see #mCoefficientFX
      */
     public void setCoefficient(int coeff)
     {
         mCoefficientFX = (FXUtil.ONE_FX * coeff);
     }
-    
+
     /**
-     * Sets the spring coefficient (FX). 
+     * Sets the spring coefficient (FX).
      * @fx
      * @param coeffFX the coefficient (FX)
      * @see Spring#mCoefficientFX
      */
-    public void setCoefficientFX(int coeffFX)    
+    public void setCoefficientFX(int coeffFX)
     {
         mCoefficientFX = coeffFX;
     }
-    
+
     /**
      * Gets the spring coefficient.
      * @fx
@@ -223,31 +223,31 @@ public class Spring implements Constraint
     {
         return mCoefficientFX;
     }
-    
+
     /**
      * Sets collision layers for joined bodies.
-     * Convenience method to apply a collision layer to both involved bodies. 
+     * Convenience method to apply a collision layer to both involved bodies.
      * @param layer the layer number (somewhere between 0 and 32).
-     * @see Body#mColissionBitFlag 
+     * @see Body#mColissionBitFlag
      */
     public void setCollisionLayer(int layer)
     {
         mBody1.addCollisionLayer(layer);
         mBody2.addCollisionLayer(layer);
     }
-    
+
     /**
      * Gets the absolute position of point 1.
-     * @return the absolute point 1 
+     * @return the absolute point 1
      */
     public FXVector getPoint1()
     {
         return mBody1.getAbsoluePoint(mPoint1);
     }
-    
+
     /**
      * Gets the absolute position of point 1.
-     * @param target the target vector 
+     * @param target the target vector
      */
     public void getPoint1(FXVector target)
     {
@@ -256,26 +256,26 @@ public class Spring implements Constraint
 
     /**
      * Gets the absolute position of point 2.
-     * @return the absolute point 2 
+     * @return the absolute point 2
      */
     public FXVector getPoint2()
     {
         return mBody2.getAbsoluePoint(mPoint2);
     }
-    
+
     /**
      * Gets the absolute position of point 2.
-     * @param target the target vector 
+     * @param target the target vector
      */
     public void getPoint2(FXVector target)
     {
         mBody2.getAbsoluePoint(mPoint2, target);
     }
-    
+
     /**
      * Gets the relative position of point 1.
-     * @return the point 1 relative to body 1 
-     */    
+     * @return the point 1 relative to body 1
+     */
     public FXVector getRawPoint1()
     {
         return mPoint1;
@@ -283,85 +283,85 @@ public class Spring implements Constraint
 
     /**
      * Gets the relative position of point 2.
-     * @return the point 2 relative to body 2 
+     * @return the point 2 relative to body 2
      */
     public FXVector getRawPoint2()
     {
         return mPoint2;
     }
-    
+
     /**
-     * Gets the first body. 
-     * @return the body 1 
+     * Gets the first body.
+     * @return the body 1
      */
     public Body getBody1()
     {
         return mBody1;
     }
-    
+
     /**
      * Gets the second body.
-     * @return the body 2 
+     * @return the body 2
      */
     public Body getBody2()
     {
         return mBody2;
     }
-    
+
     /**
      * Precalculates the values for the constraint solver iteration.
-     * @param invTimestepFX the inverse timestep of the simulation  
+     * @param invTimestepFX the inverse timestep of the simulation
      */
     public void precalculate(long invTimestepFX)
-    {  
+    {
         mBody1.getAbsoluePoint(mPoint1, M_temp1);
         mBody2.getAbsoluePoint(mPoint2, M_temp2);
-        
+
         mP1P2.assignDiff(M_temp2, M_temp1);
         mCcurrDistanceFX = mP1P2.lengthFX();
         if (mCcurrDistanceFX == 0)
         {
             return;
         }
-        
+
         mBody1.getRotationMatrix().mult(mPoint1, mR1);
         mBody2.getRotationMatrix().mult(mPoint2, mR2);
-        
+
         mP1P2.divideByFX(mCcurrDistanceFX);
 
         mOmegaTerm1FX = - mP1P2.crossFX(mR1);
         mOmegaTerm2FX = - mP1P2.crossFX(mR2);
-        
+
         int effInertia1FX = (int) ((mBody1.getInvInertia2FX() * (((long) mOmegaTerm1FX * (long) mOmegaTerm1FX) >> FXUtil.DECIMAL)) >> FXUtil.DECIMAL);
         int effInertia2FX = (int) ((mBody2.getInvInertia2FX() * (((long) mOmegaTerm2FX * (long) mOmegaTerm2FX) >> FXUtil.DECIMAL)) >> FXUtil.DECIMAL);
-        
+
         mMassEffectiveInv2FX = (mBody1.getInvMass2FX() + effInertia1FX + mBody2.getInvMass2FX() + effInertia2FX);
-         
-        
+
+
         //if we have an actual spring only a single iteration is required
         if (mCoefficientFX > 0 )
         {
             int lambdaFX = - (int) (((((long)mCoefficientFX * (long)(mDistanceFX - mCcurrDistanceFX) ) << FXUtil.DECIMAL) / invTimestepFX)>> FXUtil.DECIMAL);
             M_impulse.assign(mP1P2);
             M_impulse.multFX(lambdaFX);
-            
+
             mBody1.applyMomentumAt(M_impulse, mR1);
-            
+
             M_impulse.mult(-1);
-            mBody2.applyMomentumAt(M_impulse, mR2);            
+            mBody2.applyMomentumAt(M_impulse, mR2);
         }
-        
+
         //warmstarting: proved not to be efficient for springs (see also joints)
         //applyImpulse(accumulatedLambdaFX);
     }
-    
+
     /**
      * Applies the momentum of the constraint.
-     * @param invTimestepFX the inverse timestep of the simulation 
+     * @param invTimestepFX the inverse timestep of the simulation
      */
     public boolean applyMomentum(long invTimestepFX)
     {
-        if (mCoefficientFX > 0 || mMassEffectiveInv2FX == 0) 
+        if (mCoefficientFX > 0 || mMassEffectiveInv2FX == 0)
         {
             return true;
         }
@@ -369,93 +369,93 @@ public class Spring implements Constraint
                    - (((long) mBody1.mAngularVelocity2FX * mOmegaTerm1FX) >> FXUtil.DECIMAL2)
                    - mBody2.mVelocityFX.dotFX(mP1P2)
                    + (((long) mBody2.mAngularVelocity2FX * mOmegaTerm2FX) >> FXUtil.DECIMAL2);
-        
+
         //Baumgarte stabilisation: add a first order error term
         jvFX = jvFX + ((((World.M_JOINT_alphaFX * (long)(mDistanceFX - mCcurrDistanceFX) ) >> FXUtil.DECIMAL) * invTimestepFX) >> FXUtil.DECIMAL);
 
         int lambdaFX = - (int) ((jvFX << FXUtil.DECIMAL2) / mMassEffectiveInv2FX) ;
-        
+
         M_impulse.assign(mP1P2);
         M_impulse.multFX(lambdaFX);
-        
+
         mBody1.applyMomentumAt(M_impulse, mR1);
-        
+
         M_impulse.mult(-1);
         mBody2.applyMomentumAt(M_impulse, mR2);
-        
+
         mAccumulatedLambdaFX += lambdaFX;
-        
+
         return Math.abs(lambdaFX) < World.M_CONTACT_IterationConvergenceFX;
     }
-   
+
 
     /**
      * Empty.
      */
-    public void postStep() 
+    public void postStep()
     {
     }
 
     /**
-     * Returns the default distance of the spring. 
-     * @return the default distance. 
+     * Returns the default distance of the spring.
+     * @return the default distance.
      */
-    public int getDistance() 
+    public int getDistance()
     {
-        return mDistanceFX >> FXUtil.DECIMAL;    //#FX2F return (int) mDistanceFX; 
+        return mDistanceFX >> FXUtil.DECIMAL;    //#FX2F return (int) mDistanceFX;
     }
-    
+
     /**
-     * Returns the default distance of the spring (FX). 
+     * Returns the default distance of the spring (FX).
      * @fx
      * @return the default distance (FX)
      */
-    public int getDistanceFX() 
+    public int getDistanceFX()
     {
         return mDistanceFX;
     }
-    
+
     /**
-     * Sets the default distance of the spring (FX). 
+     * Sets the default distance of the spring (FX).
      * @fx
-     * @param distanceFX the new distance (FX) of the spring. 
+     * @param distanceFX the new distance (FX) of the spring.
      */
-    public void setDistanceFX(int distanceFX) 
+    public void setDistanceFX(int distanceFX)
     {
         if (distanceFX < 0 )
         {
-            calcDistance();              
+            calcDistance();
         }
         else
         {
             this.mDistanceFX = distanceFX;
         }
     }
-    
+
     /**
-     * Gets the last applied impulse. 
+     * Gets the last applied impulse.
      * @fx
-     * @return the last impulse (FX) that was used to correct the constraint.  
+     * @return the last impulse (FX) that was used to correct the constraint.
      */
-    public int getImpulseFX() 
+    public int getImpulseFX()
     {
         return mAccumulatedLambdaFX;
     }
 
     /**
-     * Checks if the spring is applied to a body. 
-     * @param b the body to be checked. 
-     * @return whether the body is concerned. 
+     * Checks if the spring is applied to a body.
+     * @param b the body to be checked.
+     * @return whether the body is concerned.
      */
-    public boolean concernsBody(Body b) 
+    public boolean concernsBody(Body b)
     {
         return mBody1 == b || mBody2 == b;
     }
 
     /**
-     * Checks for equality of two constraints. 
-     * @param other the comparison constraint. 
-     * @return whether the constraints are equal. 
+     * Checks for equality of two constraints.
+     * @param other the comparison constraint.
+     * @return whether the constraints are equal.
      */
     public boolean equals(Constraint other)
     {
@@ -469,7 +469,7 @@ public class Spring implements Constraint
     }
 
     /**
-     * Sets the first body.  
+     * Sets the first body.
      * @param body1 the body.
      */
     protected void setBody1(Body body1)
@@ -478,7 +478,7 @@ public class Spring implements Constraint
     }
 
     /**
-     * Sets the second body.  
+     * Sets the second body.
      * @param body2 the body.
      */
     protected void setBody2(Body body2)
@@ -487,7 +487,7 @@ public class Spring implements Constraint
     }
 
     /**
-     * Sets the first absolute anchor position.  
+     * Sets the first absolute anchor position.
      * @param absolutePoint the absolute position.
      */
     protected void setAbsolutePoint1(FXVector absolutePoint)
@@ -496,15 +496,15 @@ public class Spring implements Constraint
     }
 
     /**
-     * Sets the second absolute anchor position.  
+     * Sets the second absolute anchor position.
      * @param absolutePoint the absolute position.
      */
     protected void setAbsolutePoint2(FXVector absolutePoint)
     {
         mPoint2 = mBody2.getRelativePoint(absolutePoint);
     }
-    
-    
+
+
     /**
      * Get user data.
      * @return the user data.
@@ -522,5 +522,5 @@ public class Spring implements Constraint
     {
         this.mUserData = userData;
     }
-    
+
 }

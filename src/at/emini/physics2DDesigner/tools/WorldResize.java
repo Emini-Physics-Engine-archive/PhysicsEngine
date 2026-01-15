@@ -13,7 +13,7 @@ public class WorldResize
     static final String arg_scale = "-scale";
     static final String arg_file = "-file";
     static final String arg_out = "-out";
-    
+
     public static void main(String[] args)
     {
         boolean helpFound = false;
@@ -22,21 +22,21 @@ public class WorldResize
         String scaleStr = "";
         for( int i = 0; i< args.length; i++)
         {
-            if (args[i].equals(arg_scale)) 
+            if (args[i].equals(arg_scale))
             {
                 i++;
                 if (i >= args.length) break;
                 scaleStr = args[i];
                 continue;
             }
-            if (args[i].equals(arg_file)) 
+            if (args[i].equals(arg_file))
             {
                 i++;
                 if (i >= args.length) break;
                 filename = args[i];
                 continue;
             }
-            if (args[i].equals(arg_out)) 
+            if (args[i].equals(arg_out))
             {
                 i++;
                 if (i >= args.length) break;
@@ -45,14 +45,14 @@ public class WorldResize
             }
             if (args[i].equals(arg_help)) helpFound = true;
         }
-        
+
         //check parameters
         if (helpFound || !(scaleStr.length() != 0 && filename.length() != 0))
         {
             displayHelp();
             System.exit(0);
         }
-        
+
         //start rescaling
         DesignWorld world = null;
         File file = null;
@@ -60,13 +60,13 @@ public class WorldResize
         {
             file = new File(filename);
             world = DesignWorld.loadFromFile(file);
-        }            
+        }
         catch(Exception e)
         {
             System.out.println("The file could not be loaded!\n");
             System.exit(1);
         }
-        
+
         double scale = 0.0;
         try
         {
@@ -77,22 +77,22 @@ public class WorldResize
             System.out.println("Invalid scalefactor!\n");
             System.exit(1);
         }
-        
+
         if (world == null)
         {
             System.out.println("An unexpected Error has occurred!\n");
             System.exit(1);
         }
-        
-        world.scale((float) scale);        
-        
+
+        world.scale((float) scale);
+
         //create new filename
         if (newfilename.length() == 0)
         {
             newfilename = filename.substring(0, filename.lastIndexOf("."));
             newfilename+= "_new.phy";
         }
-        
+
         File newfile = null;
         try {
             newfile = new File(newfilename);
@@ -104,10 +104,10 @@ public class WorldResize
             e.printStackTrace();
             System.exit(1);
         }
-        
+
         System.out.println("Scaled File saved as: " + newfile + "\n");
     }
-    
+
     private static void displayHelp()
     {
         System.out.println(
@@ -121,6 +121,6 @@ public class WorldResize
         "\n"
         );
     }
-    
-    
+
+
 }

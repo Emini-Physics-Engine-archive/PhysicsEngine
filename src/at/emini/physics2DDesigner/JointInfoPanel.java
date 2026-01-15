@@ -7,15 +7,15 @@ import javax.swing.JTextArea;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-public class JointInfoPanel extends InfoPanel 
+public class JointInfoPanel extends InfoPanel
 {
 
     private static final long serialVersionUID = -7923437084022112881L;
-    
+
     private DesignJoint joint;
-    
+
     private JTextArea userData;
-    
+
     public JointInfoPanel(WorldDesigner designer)
     {
         super(designer);
@@ -25,25 +25,25 @@ public class JointInfoPanel extends InfoPanel
     private void initComponents()
     {
         details.setLayout(new BorderLayout());
-       
+
         userData = new JTextArea(3, 10);
         userData.getDocument().addDocumentListener(new DocumentListener()
         {
             public void removeUpdate(DocumentEvent e){
                 saveJoint();
-            }        
+            }
             public void insertUpdate(DocumentEvent e){
                 saveJoint();
-            }        
+            }
             public void changedUpdate(DocumentEvent e){
                 saveJoint();
             }
         });
-        
+
         details.add(new JScrollPane(userData), BorderLayout.CENTER);
     }
 
-    public DesignJoint getJoint() 
+    public DesignJoint getJoint()
     {
         return joint;
     }
@@ -53,26 +53,26 @@ public class JointInfoPanel extends InfoPanel
         if (joint != null && ! updateData)
         {
             ((StringUserData) joint.getUserData()).setData(userData.getText());
-            
+
             worldChangedUpdate();
         }
-    } 
-    
+    }
+
     public void setObject(DesignSelectionObject joint)
     {
         if (! ( joint instanceof DesignJoint) )
         {
             return;
         }
-        
+
         super.setObject(joint);
-            
+
         this.joint = (DesignJoint) joint;
         if (joint != null)
         {
             updateData();
         }
-                
+
     }
 
     private boolean updateData = false; //update lock
@@ -83,8 +83,8 @@ public class JointInfoPanel extends InfoPanel
         userData.setText(((StringUserData) joint.getUserData()).getData());
         updateData = false;
     }
-    
-     
-    
+
+
+
 
 }

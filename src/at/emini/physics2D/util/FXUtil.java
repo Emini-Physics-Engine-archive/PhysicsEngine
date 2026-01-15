@@ -1,32 +1,32 @@
 package at.emini.physics2D.util;
 
 /**
- * Utilities for fixpoint math. 
+ * Utilities for fixpoint math.
  * <p>
  * The int values postfixed with FX represent decimal numbers:
  * The first 20 bit are before the dot, the least 12 ({@link FXUtil#DECIMAL} )bit represent everything after the decimal point.
  * So we have a precision of 2^-12 = 1/4096 <br>
- * Some small values also have "double precision". They are postfixed with 2FX and have 24 lower bits. 
+ * Some small values also have "double precision". They are postfixed with 2FX and have 24 lower bits.
  * <p>
  * Methods with FX in the name (e.g: setValueFX(...), getValueFX(...)) make use of the FX number representation.
- * That applies to both, input parameters and output parameters. 
+ * That applies to both, input parameters and output parameters.
  * <p>
  * To perform fixpoint arithmetic the following has to be considered:
  * Results from multiplication or division have to be shifted back into the correct place.
  * Here is sample usage of adding, subtracting, multiplying and dividing values:
  * <code>
- * int rFX = aFX + bFX; 
+ * int rFX = aFX + bFX;
  * int rFX = aFX - bFX;
  * int rFX = FXUtil.multFX(aFX, bFX);
  * int rFX = FXUtil.divideFX(aFX, bFX);
- * </code> 
+ * </code>
  * @author Alexander Adensamer
  */
-public class FXUtil 
+public class FXUtil
 {
     /**
      * Lookup table for sinus calculation. <br>
-     * Sample lookup code: <code>int sinFX = FXUtil.sinMatFX[rotation2FX >> 16]; </code> 
+     * Sample lookup code: <code>int sinFX = FXUtil.sinMatFX[rotation2FX >> 16]; </code>
      * @fx
      */
     public static final short M_sinMatFX[] =
@@ -134,33 +134,33 @@ public class FXUtil
         -2940,-2813,-2685,-2558,-2430,-2302,-2175,-2047,-1919,-1791,-1663,-1535,-1408,-1280,-1152,-1024,
         -896,-768,-640,-512,-384,-256,-128,0
     };
-       
+
     /**
-     * Shift Factor for single shifted numbers. 
+     * Shift Factor for single shifted numbers.
      */
     public static final int DECIMAL = 12;
     /**
-     * Shift Factor for double shifted numbers. 
+     * Shift Factor for double shifted numbers.
      */
     public static final int DECIMAL2 = DECIMAL * 2;
     /**
-     * Additional matrix shift factor. 
+     * Additional matrix shift factor.
      */
     public static final int ADD_MATRIX_DECIMAL = 3;
-    
-    /**
-     * Fixpoint Math representation of 1 (FX). 
-     */
-    public static final int ONE_FX = 1 << DECIMAL;  //#FX2F 
 
     /**
-     * Fixpoint Math representation of 1 (2FX). 
+     * Fixpoint Math representation of 1 (FX).
      */
-    public static final int ONE_2FX = 1 << DECIMAL2;  //#FX2F 
+    public static final int ONE_FX = 1 << DECIMAL;  //#FX2F
+
+    /**
+     * Fixpoint Math representation of 1 (2FX).
+     */
+    public static final int ONE_2FX = 1 << DECIMAL2;  //#FX2F
 
     /**
      * Fixpoint Math representation of Pi (2FX).<br>
-     * The value computes to ~ 3.141592. 
+     * The value computes to ~ 3.141592.
      * @fx
      */
     public static final int PI_2FX = 52707178; //based on 2 * decimal 24 == 3.141592)
@@ -170,12 +170,12 @@ public class FXUtil
      * @fx
      */
     public static final int TWO_PI_2FX = 2 * PI_2FX;
-    
+
     /**
-     * Wraps an angle into the area [0..2*PI]. 
+     * Wraps an angle into the area [0..2*PI].
      * @fx
-     * @param angle2FX the original angle(2FX). 
-     * @return the wrapped angle (2FX). 
+     * @param angle2FX the original angle(2FX).
+     * @return the wrapped angle (2FX).
      */
     public static int wrapAngleFX(int angle2FX)
     {
@@ -184,11 +184,11 @@ public class FXUtil
         while(wrappedAngle2FX > FXUtil.TWO_PI_2FX) wrappedAngle2FX -= FXUtil.TWO_PI_2FX;
         return wrappedAngle2FX;
     }
-    
+
     /**
-     * Returns the difference of two angles [-PI..PI]. 
+     * Returns the difference of two angles [-PI..PI].
      * @fx
-     * @param angle1_2FX first angle (2FX). 
+     * @param angle1_2FX first angle (2FX).
      * @param angle2_2FX second angle (2FX).
      * @return the angle between them (2FX).
      */
@@ -199,20 +199,20 @@ public class FXUtil
         while(diff2FX >   PI_2FX) diff2FX -= FXUtil.TWO_PI_2FX;
         return diff2FX;
     }
-    
+
     /**
-     * Returns the angle in degrees  
+     * Returns the angle in degrees
      * @fx
-     * @param angle2FX angle to convert (2FX). 
+     * @param angle2FX angle to convert (2FX).
      * @return the angle converted to degrees.
      */
     public static int angleInDegrees2FX(long angle2FX)
     {
         return (int) ((angle2FX * 180)/ FXUtil.PI_2FX);
-    } 
- 
+    }
+
     /**
-     * Multiplication of two fixpoint values. 
+     * Multiplication of two fixpoint values.
      * @fx
      * @param aFX value a to multiply (FX).
      * @param bFX value b to multiply (FX).
@@ -221,11 +221,11 @@ public class FXUtil
     public static int multFX(int aFX, int bFX)
     {
         return (int) (((long)aFX * (long) bFX) >> FXUtil.DECIMAL);
-    } 
-    
+    }
+
     /**
      * Multiplication of two fixpoint values.
-     * Long version 
+     * Long version
      * @fx
      * @param aFX value a to multiply (FX).
      * @param bFX value b to multiply (FX).
@@ -235,9 +235,9 @@ public class FXUtil
     {                                                       //#FX2F
         return (int) ((aFX * bFX) >> FXUtil.DECIMAL);       //#FX2F
     }                                                       //#FX2F
-    
+
     /**
-     * Division of two fixpoint values. 
+     * Division of two fixpoint values.
      * @fx
      * @param aFX value a to multiply (FX).
      * @param bFX value b to multiply (FX).
@@ -246,11 +246,11 @@ public class FXUtil
     public static int divideFX(int aFX, int bFX)
     {
         return (int) (((long)aFX << FXUtil.DECIMAL) / bFX) ;
-    } 
-    
+    }
+
     /**
      * Division of two fixpoint values.
-     * Long version 
+     * Long version
      * @fx
      * @param aFX value a to multiply (FX).
      * @param bFX value b to multiply (FX).
@@ -260,21 +260,21 @@ public class FXUtil
     {                                                       //#FX2F
         return (int) ((aFX << FXUtil.DECIMAL) / bFX) ;      //#FX2F
     }                                                       //#FX2F
-    
+
     /**
-     * Converts a value to fixpoint value (shifting). 
-     * @param value the value to convert. 
-     * @return the fixpoint value (FX). 
+     * Converts a value to fixpoint value (shifting).
+     * @param value the value to convert.
+     * @return the fixpoint value (FX).
      */
     public static int toFX(int value)
     {
         return value << FXUtil.DECIMAL;
     }
-    
+
     /**
      * Converts a fixpoint value to integer
      * @param valueFX the fixpoint value (FX)
-     * @return the integer value 
+     * @return the integer value
      */
     public static int fromFX(int valueFX)
     {

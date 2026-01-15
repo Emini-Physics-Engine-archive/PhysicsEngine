@@ -15,7 +15,7 @@ public class StackTest5 extends SimulationTest {
         addTestCriterium(1, TestEventListener.MUST_NOT_OCCUR, 0, 4000);
         performSimTest();
     }
-    
+
     public static void main(String[] args)
     {
         StackTest5 test = new StackTest5("");

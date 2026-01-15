@@ -9,26 +9,26 @@ import java.awt.geom.AffineTransform;
 import javax.swing.JComponent;
 
 public class MovePanelRuler extends JComponent {
-    
+
     private static final long serialVersionUID = -2383747305945993497L;
-    
+
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
     public static final int SIZE = 40;
 
     public int orientation;
-   
+
     AffineTransform transform;
-    
+
     public MovePanelRuler(int o) {
-        orientation = o;        
+        orientation = o;
     }
-    
-    public void setTransform(AffineTransform transform) 
+
+    public void setTransform(AffineTransform transform)
     {
         this.transform = transform;
     }
-   
+
     public Dimension getPreferredSize()
     {
         if (orientation == HORIZONTAL)
@@ -41,33 +41,33 @@ public class MovePanelRuler extends JComponent {
         }
     }
 
-    public void paint(Graphics graphics) 
+    public void paint(Graphics graphics)
     {
         if (graphics == null)
         {
             return;
         }
         GraphicsWrapper g = new GraphicsWrapper((Graphics2D) graphics);
-        
+
         //calculate increment from transform
         double increment = (1.0/ (orientation == HORIZONTAL ? transform.getScaleX() : transform.getScaleY()) );
         float scale = (float) Math.log10(increment);
         float effectiveScale = scale - ((int) scale);
         int labelScale = (int) scale;   //#FX2F int labelScale = (int) scale;
-        if (effectiveScale > 0) 
+        if (effectiveScale > 0)
         {
             effectiveScale -= 1;
             labelScale += 1;
         }
-        
+
         double step = Math.pow(10, - effectiveScale + 1);
-        
+
         int zeroLine = orientation == HORIZONTAL ? (int) (transform.getTranslateX() + SIZE) : (int) (transform.getTranslateY() ); //#FX2F int zeroLine = orientation == HORIZONTAL ? (int) (transform.getTranslateX() + SIZE) : (int) (transform.getTranslateY() );
-        
+
         g.setColor(Color.white);
         g.fillRect(0, 0, getWidth(), getHeight());
         g.setColor(Color.black);
-        
+
         int cnt = 0;
         double pos = 0.0;
         int max = orientation == HORIZONTAL ? getWidth() : getHeight();
@@ -79,16 +79,16 @@ public class MovePanelRuler extends JComponent {
                 g.setColor(Color.red);
             else
                 g.setColor(Color.black);
-            drawLine(g, (int) pos, cnt, labelScale); //#FX2F drawLine(g, (int) pos, cnt, labelScale);            
+            drawLine(g, (int) pos, cnt, labelScale); //#FX2F drawLine(g, (int) pos, cnt, labelScale);
         }
     }
-    
+
     private void drawLine(GraphicsWrapper g, int pos, int cnt, int scale)
     {
         int size = SIZE / 4;
         if (cnt % 5 == 0) size = SIZE / 2;
         if (cnt % 10 == 0) size = SIZE;
-        
+
         if (orientation == HORIZONTAL)
         {
             g.drawLine(pos, 0, pos, size);
@@ -96,8 +96,8 @@ public class MovePanelRuler extends JComponent {
         else
         {
             g.drawLine(0, pos, size, pos);
-        }  
-        
+        }
+
         if (cnt % 5 == 0)
         {
             String label = String.valueOf(Math.pow(10, scale + 1) * cnt);

@@ -19,27 +19,27 @@ import javax.swing.event.DocumentListener;
 
 import at.emini.physics2D.util.FXUtil;
 
-public class MotorInfoPanel extends InfoPanel 
+public class MotorInfoPanel extends InfoPanel
 {
 
     private static final long serialVersionUID = -7923437084022112882L;
-    
+
     private DesignMotor motor;
-    
+
     private JPanel hold;
     private JPanel rotation;
     private JPanel linear;
-    private FXSpinner targetRotFX; 
-    private FXSpinner targetAFX; 
-    private FXSpinner targetBFX; 
+    private FXSpinner targetRotFX;
+    private FXSpinner targetAFX;
+    private FXSpinner targetBFX;
     private FXSpinner maxForceFX;
     private JCheckBox isRotate;
     private JCheckBox isRelative;
     private JCheckBox fixOrthogonal;
-    
+
     private JTextArea userData;
-    
-    
+
+
     public MotorInfoPanel(WorldDesigner designer)
     {
         super(designer);
@@ -51,16 +51,16 @@ public class MotorInfoPanel extends InfoPanel
     {
         details.setLayout(new BorderLayout());
         details.setMinimumSize(new Dimension(200,100));
-        
+
         hold = new JPanel();
         hold.setLayout(new BoxLayout(hold, BoxLayout.Y_AXIS));
-        
+
         linear = new JPanel(new GridLayout(4,2));
         rotation = new JPanel(new GridLayout(4,2));
         JPanel common = new JPanel(new GridLayout(2,2));
-               
+
         targetRotFX = new FXSpinner(0, FXUtil.DECIMAL2);
-        targetRotFX.addChangeListener( new ChangeListener() {        
+        targetRotFX.addChangeListener( new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 saveMotor();
             }
@@ -69,62 +69,62 @@ public class MotorInfoPanel extends InfoPanel
         rotation.add(targetRotFX);
         rotation.add(new JLabel(""));
         rotation.add(new JLabel(""));
-        
+
         targetAFX = new FXSpinner(0, FXUtil.DECIMAL);
-        targetAFX.addChangeListener( new ChangeListener() {        
+        targetAFX.addChangeListener( new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 saveMotor();
             }
         });
         linear.add(new JLabel("Velocity X", JLabel.LEFT));
         linear.add(targetAFX);
-        
+
         targetBFX = new FXSpinner(0, FXUtil.DECIMAL);
-        targetBFX.addChangeListener( new ChangeListener() {        
+        targetBFX.addChangeListener( new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 saveMotor();
             }
         });
         linear.add(new JLabel("Velocity Y", JLabel.LEFT));
         linear.add(targetBFX);
-        
+
         isRelative = new JCheckBox();
         isRelative.setSelected(false);
         isRelative.setToolTipText("Apply force relative to the body position.");
-        isRelative.addActionListener( new ActionListener() {        
-            public void actionPerformed(ActionEvent e) {                
+        isRelative.addActionListener( new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 saveMotor();
             }
         });
         linear.add(new JLabel("Relative", JLabel.CENTER));
         linear.add(isRelative);
-        
-        
+
+
         fixOrthogonal = new JCheckBox();
         fixOrthogonal.setSelected(false);
         fixOrthogonal.setToolTipText("Fix orthogonal movement to zero.");
-        fixOrthogonal.addActionListener( new ActionListener() {        
-            public void actionPerformed(ActionEvent e) {                
+        fixOrthogonal.addActionListener( new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 saveMotor();
             }
         });
-        
+
         linear.add(new JLabel("Fix Orthogonal", JLabel.CENTER));
         linear.add(fixOrthogonal);
-        
+
         maxForceFX = new FXSpinner(0, FXUtil.DECIMAL);
-        maxForceFX.addChangeListener( new ChangeListener() {        
+        maxForceFX.addChangeListener( new ChangeListener() {
             public void stateChanged(ChangeEvent e) {
                 saveMotor();
             }
         });
-        
+
         common.add(new JLabel("Power", JLabel.LEFT));
         common.add(maxForceFX);
-        
+
         isRotate = new JCheckBox();
         isRotate.setSelected(true);
-        isRotate.addActionListener( new ActionListener() {        
+        isRotate.addActionListener( new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //convertValues();
                 setVisibility();
@@ -133,36 +133,36 @@ public class MotorInfoPanel extends InfoPanel
         });
         common.add(new JLabel("Rotate", JLabel.CENTER));
         common.add(isRotate);
-        
+
         userData = new JTextArea(3, 10);
         userData.getDocument().addDocumentListener(new DocumentListener()
         {
             public void removeUpdate(DocumentEvent e){
                 saveMotor();
-            }        
+            }
             public void insertUpdate(DocumentEvent e){
                 saveMotor();
-            }        
+            }
             public void changedUpdate(DocumentEvent e){
                 saveMotor();
             }
         });
-        
+
         setVisibility();
-        
+
         hold.add(linear);
         hold.add(rotation);
         hold.add(common);
         hold.add(new JScrollPane(userData));
-        
+
         hold.setVisible(false);
         details.add(hold, BorderLayout.SOUTH);
-        
+
     }
 
-    private void setVisibility() 
+    private void setVisibility()
     {
-        if (isRotate.isSelected()) 
+        if (isRotate.isSelected())
         {
             rotation.setVisible(true);
             linear.setVisible(false);
@@ -174,43 +174,43 @@ public class MotorInfoPanel extends InfoPanel
         }
         validate();
     }
-        
-    public DesignMotor getMotor() 
+
+    public DesignMotor getMotor()
     {
         return motor;
     }
-   
+
     private void saveMotor()
     {
         if (motor != null && ! updateData)
         {
             int newTargetAFX = isRotate.isSelected() ? targetRotFX.getValueFX() : targetAFX.getValueFX();
             int newTargetBFX = targetBFX.getValueFX();
-            
-            motor.setDesignMotorParameter( 
-                    newTargetAFX, 
-                    newTargetBFX, 
-                    maxForceFX.getValueFX(), 
+
+            motor.setDesignMotorParameter(
+                    newTargetAFX,
+                    newTargetBFX,
+                    maxForceFX.getValueFX(),
                     isRotate.isSelected(),
                     isRelative.isSelected(),
                     fixOrthogonal.isSelected());
-            
+
             ((StringUserData) motor.getUserData()).setData(userData.getText());
-            
+
             worldChangedUpdate();
         }
-    } 
-    
+    }
+
     private boolean updateData = false; //update lock
     public void setObject(DesignSelectionObject motor) {
-        
+
         if (! ( motor instanceof DesignMotor) )
         {
             return;
         }
-        
+
         super.setObject(motor);
-        
+
         this.motor = (DesignMotor) motor;
         if (motor != null)
         {
@@ -222,10 +222,10 @@ public class MotorInfoPanel extends InfoPanel
         {
             hold.setVisible(false);
         }
-        
+
         repaint();
     }
-    
+
     protected void updateData()
     {
         updateData = true;
@@ -233,7 +233,7 @@ public class MotorInfoPanel extends InfoPanel
         isRotate.setSelected(this.motor.isRotation());
         isRelative.setSelected(this.motor.isRelative());
         fixOrthogonal.setSelected(this.motor.isFixOrthogonal());
-        
+
         if ( motor.isRotation() )
         {
             targetRotFX.setValueFX( this.motor.getDesignTargetAFX() );
@@ -243,11 +243,11 @@ public class MotorInfoPanel extends InfoPanel
             targetAFX.setValueFX( this.motor.getDesignTargetAFX() );
             targetBFX.setValueFX( this.motor.getDesignTargetBFX() );
         }
-        
+
         maxForceFX.setValueFX( this.motor.getMaxForceFX());
         userData.setText(((StringUserData) motor.getUserData()).getData());
         updateData = false;
     }
-    
+
 
 }

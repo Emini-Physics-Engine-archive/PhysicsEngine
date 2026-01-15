@@ -25,66 +25,66 @@ import at.emini.physics2D.util.FXVector;
 public class GraphicsWrapper
 {
     private Graphics2D g;
-    private AffineTransform transform = new AffineTransform(); 
-    
+    private AffineTransform transform = new AffineTransform();
+
     private static final int decimal = FXUtil.DECIMAL;
     private static final int koeff = 1 << decimal;      //trick to avoid preprocessing
-    
+
     public GraphicsWrapper(Graphics2D g)
     {
         this.g = g;
     }
-    
+
     public static Polygon createPolygon(FXVector[] positions, int startIndex, int endIndex)
     {
         Polygon polygon = new Polygon();
         for( int i = startIndex; i < endIndex; i++)
         {
-            polygon.addPoint( (positions[i].xFX),  (positions[i].yFX));   //#FX2F polygon.addPoint( (int) (positions[i].xFX * koeff),  (int) (positions[i].yFX * koeff)); 
+            polygon.addPoint( (positions[i].xFX),  (positions[i].yFX));   //#FX2F polygon.addPoint( (int) (positions[i].xFX * koeff),  (int) (positions[i].yFX * koeff));
         }
         return polygon;
     }
-        
+
     public double getZoomScale()
     {
         return transform.getScaleX();
     }
-    
+
     public void setColor(Color c)
     {
-        g.setColor(c);        
+        g.setColor(c);
     }
-    
+
     public void setXORMode(Color c)
     {
-        g.setXORMode(c);        
+        g.setXORMode(c);
     }
-    
+
     public void setPaintMode()
     {
-        g.setPaintMode();        
+        g.setPaintMode();
     }
-    
+
     public void setStroke(Stroke s)
     {
-        g.setStroke(s);        
+        g.setStroke(s);
     }
-    
+
     public void setClip(int i, int j, int width, int height)
     {
-        g.setClip(i, j, width, height);        
+        g.setClip(i, j, width, height);
     }
 
     public Rectangle getClipBounds()
     {
         return g.getClipBounds();
     }
-    
+
     public void transform(AffineTransform transform)
     {
         this.transform.concatenate(transform);
-        g.transform(transform); 
-    }    
+        g.transform(transform);
+    }
 
     public void translate(int x, int y)
     {
@@ -105,7 +105,7 @@ public class GraphicsWrapper
     {
         g.setPaint(paint);
     }
-    
+
     public void fillPolygon(Polygon polygon)
     {
         g.fillPolygon(polygon);
@@ -114,22 +114,22 @@ public class GraphicsWrapper
     {
         g.drawPolygon(polygon);
     }
-    
+
     public void drawLine(int a, int b, int c, int d)
     {
         g.drawLine(a, b, c, d);
     }
-    
+
     public void drawLine(double a, double b, double c, double d)
     {
         //#FX2F g.drawLine((int) (a * koeff), (int) (b * koeff), (int) (c * koeff), (int) (d * koeff));
     }
-        
+
     public void fillRect(int a, int b, int c, int d)
     {
         g.fillRect(a, b, c, d);
     }
-    
+
     public void fillRect(double a, double b, double c, double d)
     {
       //#FX2F g.fillRect((int) (a * koeff), (int) (b * koeff), (int) (c * koeff), (int) (d * koeff));
@@ -139,7 +139,7 @@ public class GraphicsWrapper
     {
         g.drawRect(a, b, c, d);
     }
-    
+
     public void drawRect(double a, double b, double c, double d)
     {
       //#FX2F g.drawRect((int) (a * koeff), (int) (b * koeff), (int) (c * koeff), (int) (d * koeff));
@@ -149,7 +149,7 @@ public class GraphicsWrapper
     {
         g.fillArc(x, y, width, height, startAngle, arcAngle);
     }
-    
+
     public void fillArc(double x, double y, double width, double height, int startAngle, int arcAngle)
     {
       //#FX2F g.fillArc((int) (x * koeff), (int) (y * koeff), (int) (width * koeff), (int) (height * koeff), startAngle, arcAngle);
@@ -159,7 +159,7 @@ public class GraphicsWrapper
     {
         g.drawArc(x, y, width, height, startAngle, arcAngle);
     }
-    
+
     public void drawArc(double x, double y, double width, double height, int startAngle, int arcAngle)
     {
       //#FX2F g.drawArc((int) (x * koeff), (int) (y * koeff), (int) (width * koeff), (int) (height * koeff), startAngle, arcAngle);
@@ -173,22 +173,22 @@ public class GraphicsWrapper
 
         /*int xoffset = (int) (img.getWidth() / Math.sqrt(2.0));
         int yoffset = (int) (img.getHeight() / Math.sqrt(2.0));
-        
+
         AffineTransform translationTransform;
         //translationTransform = findTranslation(at, img);
         translationTransform = AffineTransform.getTranslateInstance( -xoffset, -yoffset);
         translationTransform.scale(Math.sqrt(0.5), Math.sqrt(0.5));
         at.preConcatenate(translationTransform);
 */
-        
+
         BufferedImageOp bio = new AffineTransformOp(at, AffineTransformOp.TYPE_BILINEAR);
         BufferedImage target = bio.filter(img, null);
-        
-        g.drawImage(target, x, // - xoffset, 
-                            y, // - yoffset, 
+
+        g.drawImage(target, x, // - xoffset,
+                            y, // - yoffset,
                             width, height, observer);
     }
-    
+
     public void drawImage(BufferedImage img, double x, double y, double width,
             double height, double rotation, ImageObserver observer)
     {
@@ -208,8 +208,8 @@ public class GraphicsWrapper
 
     public void drawString(String label, int x, int y)
     {
-        g.drawString(label, x, y);        
+        g.drawString(label, x, y);
     }
 
-    
+
 }

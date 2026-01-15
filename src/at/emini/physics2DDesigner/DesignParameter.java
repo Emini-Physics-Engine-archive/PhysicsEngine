@@ -12,7 +12,7 @@ public class DesignParameter implements DesignSelectionObject
     {
         this.world = world;
     }
-    
+
     public void addListener(DesignObjectChangeListener listener)
     {
     }

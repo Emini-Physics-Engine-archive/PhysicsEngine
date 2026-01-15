@@ -10,7 +10,7 @@ public class ShapeTest extends TestCase {
     public ShapeTest(String name) {
         super(name);
     }
-    
+
     public void testPolygonArea()
     {
         FXVector[] rectCorners = new FXVector[4];
@@ -22,6 +22,6 @@ public class ShapeTest extends TestCase {
 
         assertEquals(16 << FXUtil.DECIMAL, rect.getAreaFX());
     }
-    
+
 
 }

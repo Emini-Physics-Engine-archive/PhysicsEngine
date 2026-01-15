@@ -16,10 +16,10 @@ public abstract class DesignPhysicsEvent extends Event implements DesignSelectio
     protected boolean visible = true;
 
     protected Color c;
-    
+
     private static int currColor = 0;
     private static final Color defaultColors[] = {
-    new Color(120,   0,   0, 80), 
+    new Color(120,   0,   0, 80),
     new Color(120, 120,   0, 80),
     new Color(  0, 120,   0, 80),
     new Color(  0, 120, 120, 80),
@@ -35,11 +35,11 @@ public abstract class DesignPhysicsEvent extends Event implements DesignSelectio
         c = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
     }
-    
+
     protected DesignPhysicsEvent(Event e, Body[] bodyMapping)
-    {    
+    {
         super(e, bodyMapping);
-        
+
         c = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
         if (mUserData == null)
@@ -47,15 +47,15 @@ public abstract class DesignPhysicsEvent extends Event implements DesignSelectio
             mUserData = new StringUserData();
         }
     }
-    
+
     protected DesignPhysicsEvent(DesignPhysicsEvent e, Body[] bodyMapping)
-    {    
+    {
         super(e, bodyMapping);
         mUserData = e.mUserData.copy();
         c = defaultColors[currColor];
-        currColor = (currColor + 1) % defaultColors.length;        
+        currColor = (currColor + 1) % defaultColors.length;
     }
-    
+
     protected DesignPhysicsEvent(int type)
     {
         super(type);
@@ -63,35 +63,35 @@ public abstract class DesignPhysicsEvent extends Event implements DesignSelectio
         c = defaultColors[currColor];
         currColor = (currColor + 1) % defaultColors.length;
     }
-    
+
     private Vector listeners = new Vector();
     public void addListener(DesignObjectChangeListener listener)
     {
         listeners.add(listener);
     }
-    
+
     public void removeListener(DesignObjectChangeListener listener)
     {
         listeners.remove(listener);
     }
-    
+
     public static DesignPhysicsEvent loadDesignEvent(PhysicsFileReader reader, World world, UserData userData)
     {
         Event event = Event.loadEvent(reader, world, userData);
 
         //decide depending on event type what to load
         DesignPhysicsEvent areaEvent = new DesignAreaEvent(event, null);
-        
+
         return areaEvent;
     }
-    
-    
+
+
     public abstract void setTargets(int t1FX, int t2FX, int t3FX, int t4FX);
     public abstract int getTargetAFX();
     public abstract int getTargetBFX();
     public abstract int getTargetCFX();
     public abstract int getTargetDFX();
-    
+
     public abstract void scale(double scale);
 
     public Color getColor()
@@ -102,24 +102,24 @@ public abstract class DesignPhysicsEvent extends Event implements DesignSelectio
     {
         this.c = c;
     }
-    
+
     public Color getOpaqueColor()
-    {        
+    {
         return DesignerUtilities.getGrayBlendColor(c);
     }
-    
+
     public abstract void saveToFile(MyFileWriter fileWriter, World world);
 
     public void setVisible(boolean visible)
     {
         this.visible = visible;
     }
-    
+
     public boolean isVisible()
     {
        return visible;
     }
-    
+
     public void notifyListeners()
     {
         for(int i = 0; i < listeners.size(); i++)
