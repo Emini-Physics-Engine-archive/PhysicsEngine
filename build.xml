@@ -1,0 +1,651 @@
+<project name="PhysicsEngine" default="Make Release" basedir=".">
+	
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+	  <classpath>
+	    <pathelement location="C:/Programme/eclipse/plugins/ant-contrib/ant-contrib-0.3.jar"/>
+	  </classpath>
+	</taskdef>
+	
+	<!-- 
+	TODO: remove duplicate FXToFloat
+	TODO: tests for all versions
+	
+	-->
+
+	<!-- Java Doc & Release Properties-->
+	<property name="officialName" 	value="Emini Physics Engine"/>
+	<property name="version" 		value="1.3.5a"/>
+	<property name="year" 			value="2014"/>
+	<property name="copyright" 		value="Alexander Adensamer"/>
+	<property name="versionstr" 	value="v135a"/>
+	
+	<!-- Compile properties 
+	 ON:  <property name="ContactPrecision" 	value="ContactPrecision"/> 		
+	 OFF: <property name="ContactPrecision" 	value="ContactPrecisionOFF"/> 	-->
+			
+	<property name="ContactPrecision" 	value="ContactPrecisionOFF"/>	
+	<property name="ContactOrdering" 	value="ContactOrderingOFF"/>
+	<property name="WorldLoading" 		value="WorldLoading"/>
+			
+		
+    <target name="Clean" description="Remove old build">
+        <delete dir="${build}"/>
+        <delete dir="${doc}"/>
+        <delete dir="${dist}"/>
+    	<delete dir="${srctemp}"/>
+        <delete dir="${testreport}"/>
+     </target>
+
+	<target name="Make and Test Release"
+		depends="
+		Init, 
+		Make Release,
+		Test Release"
+		description="Make the current release and test it">
+	</target>
+	
+	<target name="Make Release" 
+		depends="
+		Init,
+		Clean, 
+		Make Release Dirs, 
+		Obfuscate all Engine Jars,
+		Obfuscate Designer Jar,
+		Make Java Docs,
+		Copy Jars,
+		Copy Java Docs,
+		Archive Documentation,
+		Copy Documentations,
+		Copy Release Notes,
+		Copy Demo Code" 
+        description="Make the release ${version}">
+		<mkdir dir="${ReleaseFinalDir}\${EngineReleaseName}_${versionstr}_${today}\" />
+		
+		<foreach target="_Make Datatype Zips" param="Path1" 
+				list="${J2me},${Android}"/>	
+    </target>
+			
+
+	<target name="_Make Datatype Zips">
+			<foreach target="_Make Zip" param="Path2" 
+							 list="${Fx},${Float}"/>		
+	</target>
+				
+	<target name="_Make Zip" depends="Init">
+		<zip destfile="${ReleaseFinalDir}\${EngineReleaseName}_${versionstr}_${today}\EminiPhysicsEngine_${Path1}_${Path2}_${versionstr}_${today}.zip">
+			<fileset dir="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}">
+				<include name="**/*.*"/>
+			</fileset>
+		</zip>
+	</target> 
+		
+	<!-- Note: Assumes a previously made Make Release -->
+	<!-- no dependency due to performance issues, use the "Test and Make Release" target instead -->
+	<target name="Test Release"
+		depends="
+		Init,
+		Run Engine Tests,
+		Run Float Tests"
+		description="Test the current release">
+	</target>
+	
+	<target name="Run Float Designer" description="run the converted float designer" depends="Build Float Designer">
+		<java classname="at.emini.physics2DDesigner.Designer" classpath="${buildfloat}" fork="true"/>
+	</target>
+	
+	<target name="Run Float Tests" description="run the converted float tests" depends="Build Float Tests">
+		<junit printsummary="withOutAndErr" fork="yes">
+			<classpath path="${buildfloat}"/>
+			<batchtest todir="${testreport}">				
+			    <fileset dir="${buildfloat}">
+			      	<include name="physics2DSimulationTests/*Test*.*"/>
+			      	<exclude name="physics2DSimulationTests/TestEventListener*.*"/>
+			    </fileset>
+			</batchtest>			
+		</junit>
+	</target>
+	
+	<target name="Run Engine Tests" description="run the converted float tests" depends="Init">
+		<mkdir dir="${testreport}"/>
+		<junit printsummary="yes" fork="yes">
+			<classpath path="${bin}"/>
+			<formatter type="plain"/>
+			<batchtest todir="${testreport}">				
+			    <fileset dir="${bin}">
+			    	<include name="physics2DUnitTests/*Test*.*"/>
+			      	<include name="physics2DSimulationTests/*Test*.*"/>
+			      	<exclude name="physics2DSimulationTests/TestEventListener*.*"/>
+			    </fileset>
+			</batchtest>			
+		</junit>
+	</target>
+	
+	<target name="Obfuscate all Engine Jars" depends="Init, Jar all Engines" 
+	        description="Obfuscate all Engine jar files (Android, J2ME)">		
+		<foreach target="_Obfuscate Datatype Engine Jars" param="Path1" 
+				 list="${J2me},${Android}"/>
+	</target>	
+	
+	<target name="_Obfuscate Datatype Engine Jars">		
+		<foreach target="_Obfuscate Engine Jar" param="Path2" 
+				 list="${Fx},${Float}"/>		
+	</target>	
+	
+	<target name="_Obfuscate Engine Jar" depends="Init">
+		<echo message="Obfuscate engine jar at ${Path1} - ${Path2}"/>
+    	<proguard>
+    	  -libraryjars "${java.home}/lib/rt.jar"
+    	  -injars      ${dist}/engine/${Path1}/${Path2}/${ant.project.name}_${today}.jar
+    	  -outjars     ${dist}/engine/${Path1}/${Path2}/${ant.project.name}_obfuscated_${today}.jar
+
+    	  -keep public class * {public protected *;}    	  
+    	</proguard>
+	</target>
+
+	<target name="Jar all Engines" depends="Init, Build all Engines" 
+		    	description="Make engine jar-file for all builds (J2ME, Android)">
+        
+		<foreach target="_Jar Datatype Engines" param="Path1" 
+				 list="${J2me},${Android}"/>
+		
+		<!-- Copy pro jar versions to the test, sample and demo projects -->
+    	<copy file="${dist}/engine/${J2me}/${Fx}/${ant.project.name}_${today}.jar" 
+    		  tofile="${test.home}/${ant.project.name}.jar"/>
+    	<copy file="${dist}/engine/${J2me}/${Fx}/${ant.project.name}_${today}.jar" 
+    		  tofile="${demo.home}/${ant.project.name}.jar"/>
+    	<copy file="${dist}/engine/${J2me}/${Fx}/${ant.project.name}_${today}.jar" 
+    		  tofile="${sample.home}/${ant.project.name}.jar"/>
+    	<copy file="${dist}/engine/${J2me}/${Fx}/${ant.project.name}_${today}.jar" 
+    		  tofile="${androidsample.home}/libs/${ant.project.name}.jar"/>
+    </target>
+	
+	<target name="_Jar Datatype Engines">	        
+		<foreach target="_Jar Engine" param="Path2" 
+				 list="${Fx},${Float}"/>		
+    </target>
+	    		
+    <target name="_Jar Engine" depends="Init">
+    	<echo message="Make Engine Jar file for ${Path1} - ${Path2}"/>
+        <mkdir dir="${dist}/engine/${Path1}/${Path2}"/>
+        <jar destfile="${dist}/engine/${Path1}/${Path2}/${ant.project.name}_${today}.jar" >
+             <fileset dir="${build}/engine/${Path1}/${Path2}"/>                                
+        </jar>
+    </target>		
+				
+	<target name="Build all Engines" depends="Init, Prepare all sources" 
+        description="Compile all J2ME Engines">		
+		<foreach target="_Build J2ME Engine FX" param="Path" 
+				 list="${Fx}"/>
+		<foreach target="_Build J2ME Engine Float" param="Path" 
+				 list="${Float}"/>
+		<foreach target="_Build Android Engine" param="Path" 
+				 list="${Float},${Fx}"/>
+    </target> 
+			
+	<target name="_Build J2ME Engine FX" depends="Init">
+		<echo message="Compile J2ME Engine FX for ${Path}"/>
+		<mkdir dir="${build}/engine/${J2me}/${Path}"/>
+    	<javac srcdir="${srctemp}/${J2me}/${Path}/at/emini/physics2D" 
+		        	   destdir="${build}/engine/${J2me}/${Path}"
+		        	   bootclasspath="${wtk.home}/lib/midpapi10.jar:${wtk.home}/lib/cldcapi10.jar" 
+		        	   target="1.2"
+		        	   source="1.2"/>		
+	</target>
+	
+	<target name="_Build J2ME Engine Float" depends="Init">
+			<echo message="Compile J2ME Engine Float for ${Path}"/>
+			<mkdir dir="${build}/engine/${J2me}/${Path}"/>
+	    	<javac srcdir="${srctemp}/${J2me}/${Path}/at/emini/physics2D" 
+			        	   destdir="${build}/engine/${J2me}/${Path}"
+			        	   bootclasspath="${wtk.home}/lib/midpapi20.jar:${wtk.home}/lib/cldcapi11.jar" 
+			        	   target="1.2"
+			        	   source="1.2"/>		
+	</target>
+	
+    <target name="_Build Android Engine" depends="Init">
+    	<echo message="Compile Android Engine for ${Path}"/>
+    	<mkdir dir="${build}/engine/${Android}/${Path}"/>    	
+        <javac srcdir="${srctemp}/${Android}/${Path}/at/emini/physics2D" 
+        	   destdir="${build}/engine/${Android}/${Path}"
+        	   target="1.3"
+        	   source="1.3"/>    	
+    </target>
+	
+	<target name="Prepare all sources" depends="Init"
+		description="Prepare all sources (compile parameter)" >
+		<!-- Compile parameter -->
+		<mkdir dir="${srctemp}/${Base}"/>
+		<copy todir="${srctemp}/${Base}" overwrite="true">
+			<fileset dir="${src}" casesensitive="yes">
+			  	<include name="at/emini/physics2D/**/*.*"/>
+			</fileset>
+			<filterchain>
+		        <tokenfilter>
+		        	<replaceregex pattern="(^ *.*//#${ContactPrecision})" replace=""/>
+		        	<replaceregex pattern="(^ *.*//#${ContactOrdering})" replace=""/>
+		        </tokenfilter>
+		    </filterchain>
+		</copy>	
+		<foreach target="_Prepare platform sources" param="dummy" list="empty"/>
+	</target>
+	
+	<target name="_Prepare platform sources" depends="Init"
+		description="Prepare platform sources (J2ME, Android)" >
+		<!-- J2ME -->
+		<mkdir dir="${srctemp}/${J2me}/${Base}"/>
+		<copy todir="${srctemp}/${J2me}/${Base}" overwrite="true">
+			<fileset dir="${srctemp}/${Base}" casesensitive="yes">
+			  	<include name="at/emini/physics2D/**/*.*"/>
+			</fileset>
+			<filterchain>
+		        <tokenfilter>
+		        	<replaceregex pattern="(^ *.*//#NoJ2ME)" replace=""/>
+		        	<replaceregex pattern="^ *(.*)\.add\(([^,\)]*)\);" replace="\1.xFX+=\2.xFX;\1.yFX+=\2.yFX;"/>		        	
+		        	<replaceregex pattern="^ *(.*)\.add2FX\(([^,\)]*),([^,]*)\);" replace="\1.xFX += (int)((\3 * (long) \2.xFX ) >> FXUtil.DECIMAL2);\1.yFX += (int)((\3 * (long) \2.yFX ) >> FXUtil.DECIMAL2);"/>		        	
+		        	<replaceregex pattern="^ *(.*[^M][^a][^t][^r][^i][^x])\.assign\(([^,\)]*)\);" replace="\1.xFX=\2.xFX;\1.yFX=\2.yFX;"/>
+		        	<replaceregex pattern="([^ \(]*)\.crossFX\(([^,\)]*)\)" replace="((((long) \1.xFX * (long) \2.yFX) - ((long) \1.yFX * (long) \2.xFX )) >> FXUtil.DECIMAL)"/>		        	
+		        	<replaceregex pattern="([^ \(]*)\.dotFX\(([^,\)]*)\)"   replace="((((long) \1.xFX * (long) \2.xFX) + ((long) \1.yFX * (long) \2.yFX )) >> FXUtil.DECIMAL)"/>		        	
+		        	<replaceregex pattern="FXUtil.multFX\(([^,]*),([^,]*)\)" replace="((int)((long)(\1) * (long)(\2)) >> FXUtil.DECIMAL)"/>
+		        </tokenfilter>
+		    </filterchain>
+		</copy>	
+		<foreach target="_Prepare datatype sources" param="Path" list="${J2me}"/>
+		<!-- Android -->
+		<mkdir dir="${srctemp}/${Android}/${Base}"/>
+		<copy todir="${srctemp}/${Android}/${Base}" overwrite="true">
+			<fileset dir="${srctemp}/${Base}" casesensitive="yes">
+			  	<include name="at/emini/physics2D/**/*.*"/>
+			</fileset>
+			<filterchain>
+		        <tokenfilter>
+		        	<replaceregex pattern="^ *(.*)\.add\(([^,\)]*)\);" replace="\1.xFX+=\2.xFX;\1.yFX+=\2.yFX;"/>		        	
+		        	<replaceregex pattern="^ *(.*)\.add2FX\(([^,\)]*),([^,]*)\);" replace="\1.xFX += (int)((\3 * (long) \2.xFX ) >> FXUtil.DECIMAL2);\1.yFX += (int)((\3 * (long) \2.yFX ) >> FXUtil.DECIMAL2);"/>		        	
+		        	<replaceregex pattern="^ *(.*[^M][^a][^t][^r][^i][^x])\.assign\(([^,\)]*)\);" replace="\1.xFX=\2.xFX;\1.yFX=\2.yFX;"/>
+		        	<replaceregex pattern="([^ \(]*)\.crossFX\(([^,\)]*)\)" replace="((((long) \1.xFX * (long) \2.yFX) - ((long) \1.yFX * (long) \2.xFX )) >> FXUtil.DECIMAL)"/>		        	
+		        	<replaceregex pattern="([^ \(]*)\.dotFX\(([^,\)]*)\)"   replace="((((long) \1.xFX * (long) \2.xFX) + ((long) \1.yFX * (long) \2.yFX )) >> FXUtil.DECIMAL)"/>		        	
+		        	<replaceregex pattern="FXUtil.multFX\(([^,]*),([^,]*)\)" replace="((int)((long)(\1) * (long) (\2)) >> FXUtil.DECIMAL)"/>
+		        </tokenfilter>
+		    </filterchain>
+		</copy>
+		<foreach target="_Prepare datatype sources" param="Path" list="${Android}"/>
+	</target>
+		
+	
+	<target name="_Prepare datatype sources">
+		<!-- FX -->
+		<mkdir dir="${srctemp}/${Path}/${Fx}"/>
+    	<copy todir="${srctemp}/${Path}/${Fx}" overwrite="true">
+			<fileset dir="${srctemp}/${Path}/${Base}" casesensitive="yes">
+			  	<include name="at/emini/physics2D/**/*.*"/>
+			</fileset>
+		</copy>
+			
+		<!-- Float -->
+		<mkdir dir="${srctemp}/${Path}/${Float}"/>
+    	<copy todir="${srctemp}/${Path}/${Float}" overwrite="true">
+			<fileset dir="${srctemp}/${Path}/${Base}" casesensitive="yes">
+			  	<include name="at/emini/physics2D/**/*.*"/>
+			</fileset>
+    		
+    		<filterchain>
+		        <tokenfilter>
+		        	<replaceregex pattern="@fx" replace=""/>
+		        	<!-- special situations --> 
+		        	<replaceregex pattern="\(int\)|\(long\)|^( *).*//#FX2F(.*)" replace="\1\2" flags="gi"/> 
+		    	    <replaceregex pattern="([\( ])int([ |\[\] ])([^\(,=]*?FX)" replace="\1float\2\3" flags="gi"/> 
+		        	<replaceregex pattern="([\( ])long([ |\[\] ])([^\(,=]*?FX)" replace="\1float\2\3" flags="gi"/>
+		    	    <replaceregex pattern="&lt;&lt; FXUtil\.[^\),]*DECIMAL2*|>> FXUtil\.[^\),]*DECIMAL2*" replace="" flags="gi"/>
+		        	<replaceregex pattern="&lt;&lt; \(FXUtil\.[^\),]*DECIMAL[^\),]*\)|>> \(FXUtil\.[^\),]*DECIMAL[^\),]*\)" replace="" flags="gi"/>
+		        	<!-- Math operations -->	        	    
+		        	<replaceregex pattern="FXUtil\.ONE_FX" replace="1.0f" flags="gi"/>
+		        	<replaceregex pattern="FXUtil\.PI_2FX" replace="(float) Math.PI" flags="gi"/>
+		        	<replaceregex pattern="FXUtil\.TWO_PI_2FX" replace="(float) (2 * Math.PI)" flags="gi"/>
+		        	<!-- Designer specific -->
+		        	<replaceregex pattern="FXSpinner" replace="FloatSpinner" flags="gi"/>
+		        	<!-- Tests specific -->
+		        </tokenfilter>
+		    </filterchain>
+		</copy>	
+		
+    </target>
+		
+	 <target name="Build Designer" depends="Init" 
+        description="Compile designer">
+    	<mkdir dir="${build}/designer"/>
+        <javac srcdir="${src}/at/emini/physics2DDesigner:${src}/at/emini/physics2D" 
+        	   destdir="${build}/designer"
+        	   target="1.6"
+        	   source="1.6"/>    	
+    </target>
+
+    <target name="Jar Designer" depends="Init, Build Designer" 
+    	description="Make Designer jar-file">
+        <mkdir dir="${dist}/designer"/>
+        <jar destfile="${dist}/designer/${ant.project.name}Designer_${today}.jar" 
+        	 manifest="PhysicsEngineDesigner.mf">
+             <fileset dir="${build}/designer"/>                                
+        	 <fileset dir="${res}"/>
+        </jar>
+    </target>
+	
+	<target name="Obfuscate Designer Jar" depends="Init, Jar Designer" 
+	        description="Obfuscate the Designer jar file">
+    	<proguard>
+    	  -libraryjars "${java.home}/lib/rt.jar"
+    	  -injars      ${dist}/designer/${ant.project.name}Designer_${today}.jar
+    	  -outjars     ${dist}/designer/${ant.project.name}Designer_obfuscated_${today}.jar
+    	  -dontskipnonpubliclibraryclasses
+
+    	  -keep public class at.emini.physics2DDesigner.Designer {
+    	    public static void main(java.lang.String[]);
+    	   }
+    	  -keep public class at.emini.physics2DDesigner.DesignerManager {
+    	    public static void main(java.lang.String[]);
+    	   }
+		  -keep public class at.emini.physics2DDesigner.tools.* {
+    	    public static void main(java.lang.String[]);
+    	   }
+    	</proguard>
+	</target>
+    <target name="FX to Float" depends="Init">
+    	<mkdir dir="${srcfloat}/"/>
+    	<mkdir dir="${buildfloat}/"/>
+    	
+    	<copy todir="${srcfloat}" overwrite="true">	
+			<fileset dir="${basedir}" casesensitive="yes">
+			  	<include name="src/**/*.java"/>
+				<include name="srcj2me/**/*.java"/>
+			</fileset>
+			
+		    <filterchain>
+		        <tokenfilter>
+		        	<replaceregex pattern="@fx" replace=""/>
+		        	<!-- special situations --> 
+		        	<replaceregex pattern="\(int\)|\(long\)|^( *).*//#FX2F(.*)" replace="\1\2" flags="gi"/> 
+		    	    <replaceregex pattern="([\( ])int([ |\[\] ])([^\(,=]*?FX)" replace="\1float\2\3" flags="gi"/> 
+		        	<replaceregex pattern="([\( ])long([ |\[\] ])([^\(,=]*?FX)" replace="\1float\2\3" flags="gi"/>
+		    	    <replaceregex pattern="&lt;&lt; FXUtil\.[^\),]*DECIMAL2*|>> FXUtil\.[^\),]*DECIMAL2*" replace="" flags="gi"/>
+		        	<replaceregex pattern="&lt;&lt; \(FXUtil\.[^\),]*DECIMAL[^\),]*\)|>> \(FXUtil\.[^\),]*DECIMAL[^\),]*\)" replace="" flags="gi"/>
+		        	<!-- Math operations -->	        	    
+		        	<replaceregex pattern="FXUtil\.ONE_FX" replace="1.0f" flags="gi"/>
+		        	<replaceregex pattern="FXUtil\.PI_2FX" replace="(float) Math.PI" flags="gi"/>
+		        	<replaceregex pattern="FXUtil\.TWO_PI_2FX" replace="(float) (2 * Math.PI)" flags="gi"/>
+		        	<!-- Designer specific -->
+		        	<replaceregex pattern="FXSpinner" replace="FloatSpinner" flags="gi"/>
+		        	<!-- Tests specific -->
+		        </tokenfilter>
+		    </filterchain>
+		</copy>
+    			
+		<delete file="${srcfloat}/src/at/emini/physics2DDesigner/FXSpinner.java"/>		
+    </target>
+    	
+	<target name="Build Float Designer" description="build the float designer" depends="FX to Float">
+		<javac srcdir="${srcfloat}/src/at/emini/physics2D:${srcfloat}/src/at/emini/physics2DDesigner" 
+				        	   destdir="${buildfloat}"
+				        	   target="1.5"
+				        	   source="1.5"/>
+				
+		<mkdir dir="${buildfloat}/res/"/>
+		<copy todir="${buildfloat}" overwrite="true">
+			<fileset dir="${res}">
+			  <include name="**/*.*"/>
+			</fileset>			
+		</copy>
+	</target>
+			
+	<target name="Build Float Tests" description="build the tests for float engine" depends="FX to Float, Build Float Designer">
+		<javac srcdir="${srcfloat}/src/at/emini/physics2D:${srcfloat}/src/at/emini/physics2DSimulationTests" 
+		        	   destdir="${buildfloat}"
+		        	   target="1.3"
+		        	   source="1.3">
+			<classpath>
+				<pathelement location="${junit.home}\junit.jar"/>
+			</classpath>
+		</javac>
+		<copy todir="${buildfloat}" overwrite="true">
+				<fileset dir="${res}">
+				  <include name="tests/*.*"/>
+				</fileset>			
+			</copy>
+	</target>	
+
+	<target name="Make Release Dirs" depends="Init" 
+			description="Create all directories for the release (J2ME, Android)">
+		<foreach target="_Make Datatype Release Dirs" param="Path1" 
+				 list="${J2me},${Android}"/>		
+	</target>	
+	
+	<target name="_Make Datatype Release Dirs">
+		<foreach target="_Make Release Dir" param="Path2" 
+				 list="${Fx},${Float}"/>
+	</target>	
+		
+	<target name="_Make Release Dir" depends="Init">		
+		<mkdir dir="${ReleaseDirName}/${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}"/>		
+	</target>
+		
+	<target name="Copy Jars" 
+		depends="
+		Init, Make Release Dirs, 
+		Obfuscate all Engine Jars,
+		Obfuscate Designer Jar" 
+		description="Copy the compiled and obfuscated jars to the corresponding release folders (J2ME, Android)">
+		<foreach target="_Copy Datatype Jars" param="Path1" 
+						 list="${J2me},${Android}"/>		
+	</target>
+	
+	<target name="_Copy Datatype Jars">
+			<foreach target="_Copy Jar" param="Path2" 
+							 list="${Fx},${Float}"/>		
+	</target>
+	
+		
+	<target name="_Copy Jar" depends="Init">
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\${ant.project.name}_${versionstr}.jar"
+				file="${dist}\engine\${Path1}\${Path2}\${ant.project.name}_obfuscated_${today}.jar" />
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\${ant.project.name}Designer_${versionstr}.jar"
+				file="${dist}\designer\${ant.project.name}Designer_obfuscated_${today}.jar" />
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\Designer.bat"
+				file="${ScriptBaseDir}\Designer.bat" />
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\DesignerManager.bat"
+				file="${ScriptBaseDir}\DesignerManager.bat" />
+	</target>
+	
+	
+	<target name="Make Java Docs" depends="Init, Prepare all sources" 
+			description="create java documentation (J2me, Android) - at protected level">
+		<foreach target="_Make Datatype Java Docs" param="Path1" 
+						 list="${J2me},${Android}"/>
+    </target>
+		
+	<target name="_Make Datatype Java Docs">
+		<foreach target="_Make Java Doc" param="Path2" 
+						 list="${Fx},${Float}"/>
+	</target>
+		
+	<target name="_Make Java Doc">
+		<mkdir dir="${doc}/${Path1}/${Path2}"/>
+		<javadoc sourcepath="${srctemp}/${Path1}/${Path2}"
+    	            destdir="${doc}/${Path1}/${Path2}"
+    	            packagenames="at.emini.*"
+		    		access="protected"
+    	            doctitle="${officialName} ${version} API Documentation"
+    	            bottom="${officialName} ${version} API Documentation - Copyright ${year} ${copyright}"
+    	            header="${officialName} ${version} API Documentation"
+    	            footer="${officialName} ${version} API Documentation"
+    	             >
+			<tag name="fx" description="${fxtag}" enabled="true"/>
+		</javadoc>
+	</target>
+	
+	<target name="Copy Java Docs" 
+		depends="Init, Make Release Dirs, Make Java Docs" 
+		description="Copy the java docs to the relases">
+		<foreach target="_Copy Datatype Java Docs" param="Path1" 
+						 list="${J2me},${Android}"/>
+    </target>
+		
+	<target name="_Copy Datatype Java Docs">
+		<foreach target="_Copy Java Doc" param="Path2" 
+						 list="${Fx},${Float}"/>
+	</target>
+		
+	<target name="_Copy Java Doc" depends="Init"> 
+		<mkdir dir="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\doc"/>
+		<copy todir="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\doc">
+			<fileset dir="${doc}/${Path1}/${Path2}"/> 
+		</copy>		
+	</target>
+	
+	<target name="Archive Documentation" depends="Init" 
+		description="Copy the current documentations to the archive">
+		<property name="ArchiveDir" location="${DocumentationBaseDir}/${DocumentationArchiveName}/${today}_${versionstr}"/>
+		<mkdir dir="${ArchiveDir}"/>
+		<copy todir="${ArchiveDir}">
+			<fileset dir="${DocumentationBaseDir}">
+				<include name="*.*"/>
+			</fileset>
+		</copy>
+		<property name="DesignerArchiveDir" location="${DesignerDocumentationBaseDir}/${DesignerDocumentationArchiveName}/${today}_${versionstr}"/>
+		<mkdir dir="${DesignerArchiveDir}"/>
+		<copy todir="${DesignerArchiveDir}">
+			<fileset dir="${DesignerDocumentationBaseDir}">
+				<include name="*.*"/>
+			</fileset>
+		</copy>
+	</target>	
+	
+	<target name="Copy Documentations" 
+			depends="Init, Make Release Dirs" 
+			description="Copy the Documentations to the relases">
+			<foreach target="_Copy Datatype Documentations" param="Path1" 
+							 list="${J2me},${Android}"/>
+    </target>
+		
+	<target name="_Copy Datatype Documentations">
+		<foreach target="_Copy Documentation" param="Path2" 
+						 list="${Fx},${Float}"/>
+	</target>
+	
+	<target name="_Copy Documentation" depends="Init">
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\${DocumentationFileBase}_${versionstr}.pdf" 
+			  file="${DocumentationBaseDir}\${DocumentationFileBase}.pdf" />
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\${DesignerDocumentationFileBase}_${versionstr}.pdf" 
+			  file="${DesignerDocumentationBaseDir}\${DesignerDocumentationFileBase}.pdf" />
+	</target>	
+	
+	<target name="Copy Release Notes" 
+				depends="Init, Make Release Dirs" 
+				description="Copy the current release notes to the release dirs">
+		<foreach target="_Copy Datatype Release Notes" param="Path1" 
+						 list="${J2me},${Android}"/>
+    </target>
+		
+	<target name="_Copy Datatype Release Notes">
+		<foreach target="_Copy Release Notes" param="Path2" 
+						 list="${Fx},${Float}"/>
+	</target>
+
+	
+	<target name="_Copy Release Notes" depends="Init">
+		<copy tofile="${ReleaseDirName}\${EngineReleaseName}_${Path1}_${Path2}_${versionstr}_${today}\${ReleasenotesFileBase}.txt" 
+			  file="${ReleasenotesBaseDir}\${ReleasenotesFileBase}.txt" />
+	</target>
+	
+	<target name="Copy Demo Code" depends="Init, Make Release Dirs" 
+			description="Copy demo code notes to the release dirs">
+		<foreach target="_Copy Datatype Release Notes" param="Path1" 
+				list="${J2me}"/>
+    </target>
+		
+	<target name="_Copy Datatype Demo Code">
+		<foreach target="_Copy Demo Code" param="Path2" 
+						 list="${Fx}"/>
+	</target>
+	
+		
+	<target name="_Copy Demo Code" depends="Init">
+		<copy todir="${J2meReleaseDir}\demo">
+			<fileset dir="${demo.home}">
+				<include name="src/**/*.java"/>
+				<include name="res/**.phy"/>
+				<include name="res/**.png"/>
+			</fileset>
+		</copy>
+	</target>	
+	
+
+	<target name="Init" description="Create timestamp for dirs and files">
+		<tstamp>
+		    <format property="today" pattern="yyyy_MM_dd"/>
+		</tstamp>
+		<property name="ReleaseDirName" value="${ReleaseTempDir}\${EngineReleaseName}_${versionstr}_${today}" />		
+    </target>
+	
+	
+	<!-- set taskdefs and description-->
+    <description>
+        This buildfile is used to build the engine, designer, ofuscate it and make the release
+    </description>
+
+	<taskdef resource="proguard/ant/task.properties"
+		         classpath="C:/Programme/ProGuard/proguard4.3/lib/proguard.jar" />
+
+	<property name="junit.home" location="C:\Programme\junit3.8.1"/>
+
+	<!-- set global properties for this build -->
+	<property name="src" 		location="src"/>
+    <property name="res" 		location="res"/>
+    <property name="bin" 		location="bin"/>
+	<property name="build" 		location="build"/>
+	<property name="dist" 		location="dist"/>	
+	<property name="srctemp" 	location="src_temp"/>
+	<property name="testreport" location="testreport"/>
+	<property name="doc" 		location="doc"/>
+	
+	<property name="srcfloat" 		location="src_float"/>
+	<property name="buildfloat" 	location="build_float"/>
+		
+	<property name="sample.home" 			location="${basedir}\..\PhysEngineSample"/>
+	<property name="androidsample.home" 	location="${basedir}\..\PhysEngineAndroidSample"/>	
+	<property name="demo.home" 				location="${basedir}\..\PhysEngineDemo"/>
+	<property name="test.home" 				location="${basedir}\..\PhysEngineTest"/>
+			
+	<property name="fx" 		value="Fixpoint interface"/>
+		
+	<property name="PhysicsProjectBaseDir"  location="C:\eigenes\Projekte\physengine\aaphys"/>
+	
+	<property name="ReleaseBaseDir" 		location="${PhysicsProjectBaseDir}\releases\"/>
+	<property name="ReleaseTempDir" 		location="${ReleaseBaseDir}\release_temp"/>
+	<property name="ReleaseFinalDir" 		location="${ReleaseBaseDir}\physicsengine"/>
+	<property name="EngineReleaseName" 		value="EminiPhysicsEngine"/>
+		
+	<property name="DocumentationBaseDir" 		location="${PhysicsProjectBaseDir}\doc"/>
+	<property name="DocumentationArchiveName" 	value="archive"/>
+	<property name="DocumentationFileBase" 		value="EngineDocumentation"/>
+		
+	<property name="ScriptBaseDir" 				location="${PhysicsProjectBaseDir}\misc\scripts"/>
+			
+	<property name="DesignerDocumentationBaseDir" 		location="${PhysicsProjectBaseDir}\doc_designer"/>
+	<property name="DesignerDocumentationArchiveName" 	value="archive"/>
+	<property name="DesignerDocumentationFileBase" 		value="WorldDesignerDocumentation"/>
+		
+	<property name="ReleasenotesBaseDir" 		location="${PhysicsProjectBaseDir}\product\releasenotes\full"/>
+	<property name="ReleasenotesFileBase" 		value="releasenotes"/>
+
+	<property name="Base" 		value="Base"/>
+	
+	<property name="Eco" 		value="Light"/>
+	<property name="Basic" 		value="Standard"/>
+	<property name="Pro" 		value="Deluxe"/>
+
+	<property name="Android"    value="android"/>
+	<property name="J2me"    	value="j2me"/>
+
+	<property name="Float"    	value="float"/>
+	<property name="Fx"    		value="fx"/>
+		
+	<property name="fxtag" 			value="Fixpoint interface"/>
+		
+</project>

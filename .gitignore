@@ -1,0 +1,24 @@
+# build artifacts and temp folders
+build/
+build_float/
+dist/
+bin/
+testreport/
+doc*/
+src_temp/
+src_float/
+
+# nothing to do with the engine sources
+goodsprings.phy
+
+# unused, left over from an older version (1.1.0, 2009)
+docs.xml
+
+# local svn data is useless without a server
+.svn/
+
+# Eclipse
+*.jardesc
+.classpath
+.project
+.settings/
